@@ -1,0 +1,160 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CIP — Home</title>
+  <meta name="color-scheme" content="light dark">
+  <style>
+    :root { --border:#e5e7eb; --muted:#6b7280; --bg:#f9fafb; --cardbg:#ffffff; }
+    @media (prefers-color-scheme: dark) {
+      :root { --border:#374151; --muted:#9ca3af; --bg:#0b0f17; --cardbg:#0f1722; }
+      body { color:#e5e7eb; background:#0b0f17; }
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial; margin:0; }
+    header { position:sticky; top:0; background:var(--cardbg); border-bottom:1px solid var(--border); padding:14px 16px; }
+    h1 { margin:0; font-size:20px; }
+    main { padding:16px; max-width:900px; margin:0 auto; }
+    .row { display:flex; gap:8px; flex-wrap:wrap; }
+    input[type="text"], input[type="url"] { flex:1; min-width:220px; padding:10px 12px; border:1px solid var(--border); border-radius:12px; background:var(--cardbg); color:inherit; }
+    button { padding:10px 14px; border-radius:12px; border:1px solid var(--border); background:var(--bg); color:inherit; cursor:pointer; }
+    button:active { transform:translateY(1px); }
+    .list { margin-top:16px; display:grid; gap:10px; }
+    .item { display:flex; align-items:center; gap:10px; border:1px solid var(--border); border-radius:16px; padding:12px; background:var(--cardbg); }
+    .title { font-weight:600; }
+    .url { color:var(--muted); font-size:12px; word-break:break-all; }
+    .spacer { flex:1; }
+    .muted { color:var(--muted); font-size:12px; }
+    .hidden { display:none; }
+    .actions { display:flex; gap:6px; }
+    footer { margin-top:24px; color:var(--muted); font-size:12px; text-align:center; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>CIP — Home</h1>
+  </header>
+  <main>
+    <div class="row" id="addRow">
+      <input id="nameInput" type="text" placeholder="Deck name (e.g., Numbers K01)" />
+      <input id="urlInput" type="text" placeholder="Relative URL (e.g., K_01_1_10_numbers/index_numbers.html)" />
+      <button id="browseBtn" title="Browse for a file">Browse…</button>
+      <input id="filePicker" type="file" accept=".html,.htm" class="hidden" />
+      <button id="addBtn" title="Add deck link">Add</button>
+      <button id="clearBtn" title="Clear all links">Clear All</button>
+      <button id="exportBtn" title="Export links">Export</button>
+      <input id="importFile" type="file" accept="application/json" class="hidden" />
+      <button id="importBtn" title="Import links">Import</button>
+    </div>
+
+    <div class="list" id="list"></div>
+
+    <footer>Links are saved in this browser (localStorage). Use <b>relative</b> paths like <code>K_01_1_10_numbers/index_numbers.html</code>.</footer>
+  </main>
+
+  <template id="itemTpl">
+    <div class="item">
+      <div>
+        <div class="title"></div>
+        <div class="url"></div>
+      </div>
+      <div class="spacer"></div>
+      <div class="actions">
+        <button class="openBtn">Open</button>
+        <button class="editBtn">Edit</button>
+        <button class="removeBtn">Remove</button>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    const KEY = 'deckLinks';
+    const $ = s => document.querySelector(s);
+
+    function loadLinks(){
+      try{ const x = JSON.parse(localStorage.getItem(KEY)||'[]'); return Array.isArray(x)?x:[]; }catch{return [];}
+    }
+    function saveLinks(list){ localStorage.setItem(KEY, JSON.stringify(list)); }
+
+    function seedIfEmpty(){
+      const list = loadLinks();
+      if(list.length === 0){
+        // RELATIVE seed (no leading slash)
+        list.push({ name: 'K01 Numbers (一–十)', url: 'K_01_1_10_numbers/index_numbers.html' });
+        saveLinks(list);
+      }
+    }
+
+    function render(){
+      const list = loadLinks();
+      const listEl = $('#list'); listEl.innerHTML = '';
+      const tpl = document.getElementById('itemTpl');
+
+      if(!list.length){
+        const d=document.createElement('div'); d.className='muted'; d.textContent='No decks yet. Add your first one above.'; listEl.appendChild(d); return;
+      }
+      list.forEach((item, idx)=>{
+        const node = tpl.content.cloneNode(true);
+        node.querySelector('.title').textContent = item.name||'(Untitled)';
+        node.querySelector('.url').textContent = item.url||'';
+        node.querySelector('.openBtn').addEventListener('click', ()=>{ if(item.url) location.href=item.url; });
+        node.querySelector('.editBtn').addEventListener('click', ()=>{
+          const name = prompt('Edit deck name:', item.name||''); if(name===null) return;
+          const url = prompt('Edit deck URL (relative):', item.url||''); if(url===null) return;
+          list[idx] = { name: name.trim(), url: url.trim() }; saveLinks(list); render();
+        });
+        node.querySelector('.removeBtn').addEventListener('click', ()=>{
+          if(!confirm('Remove this link?')) return; list.splice(idx,1); saveLinks(list); render();
+        });
+        listEl.appendChild(node);
+      });
+    }
+
+    function addLink(name,url){
+      const list = loadLinks();
+      const n=(name||'').trim(), u=(url||'').trim();
+      if(!n||!u) return alert('Please enter both name and URL.');
+      if(list.some(x=>(x.url||'').trim()===u)) return alert('This URL already exists.');
+      list.push({name:n,url:u}); saveLinks(list); render();
+    }
+
+    // Wire UI
+    $('#addBtn').addEventListener('click', ()=> addLink($('#nameInput').value, $('#urlInput').value));
+    $('#nameInput').addEventListener('keydown', e=>{ if(e.key==='Enter') addLink($('#nameInput').value, $('#urlInput').value); });
+    $('#urlInput').addEventListener('keydown', e=>{ if(e.key==='Enter') addLink($('#nameInput').value, $('#urlInput').value); });
+    $('#clearBtn').addEventListener('click', ()=>{ if(!confirm('Clear ALL saved links?')) return; localStorage.removeItem(KEY); render(); });
+    $('#exportBtn').addEventListener('click', ()=>{
+      const data = new Blob([localStorage.getItem(KEY)||'[]'], {type:'application/json'});
+      const url = URL.createObjectURL(data); const a=document.createElement('a');
+      a.href=url; a.download='deck-links.json'; a.click(); URL.revokeObjectURL(url);
+    });
+    $('#importBtn').addEventListener('click', ()=> $('#importFile').click());
+    $('#importFile').addEventListener('change', ev=>{
+      const f=ev.target.files?.[0]; if(!f) return; const r=new FileReader();
+      r.onload=()=>{ try{ const p=JSON.parse(r.result); if(!Array.isArray(p)) throw new Error('Invalid JSON'); localStorage.setItem(KEY, JSON.stringify(p)); render(); }catch(e){ alert('Import failed: '+e.message);} };
+      r.readAsText(f); ev.target.value='';
+    });
+
+    seedIfEmpty();
+    render();
+  
+    // Browse button → open file picker and fill URL field with chosen file name
+    const browseBtn = document.getElementById('browseBtn');
+    const filePicker = document.getElementById('filePicker');
+    if (browseBtn && filePicker) {
+      browseBtn.addEventListener('click', () => filePicker.click());
+      filePicker.addEventListener('change', (ev)=>{
+        const f = ev.target.files && ev.target.files[0];
+        if (!f) return;
+        // Browsers don't expose full paths; use relative path if available (webkitRelativePath), else name.
+        const rel = (f.webkitRelativePath && f.webkitRelativePath.trim()) ? f.webkitRelativePath : f.name;
+        document.getElementById('urlInput').value = rel;
+        // Reset the input so the same file can be picked again later if needed
+        ev.target.value = '';
+      });
+    }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>My characters</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<style>
+:root{--layout-w:min(1200px,98vw);--sidebar-w:220px}
+html,body{height:100%}
+body{margin:0;background:#f6f7fb;font-family:-apple-system,system-ui,"PingFang SC","Noto Sans CJK SC","KaiTi","Kaiti SC","STKaiti",serif;display:grid;place-items:center}
+.layout{width:var(--layout-w);display:grid;grid-template-columns:var(--sidebar-w) 1fr;gap:14px;padding:14px}
+.sidebar{background:#fff;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.06);padding:10px;overflow:auto;max-height:86vh}
+.sidebar h3{margin:8px 8px 10px;font-size:16px;color:#444;display:flex;justify-content:space-between;align-items:center}
+.charList{list-style:none;padding:0;margin:0}
+.charList li{display:flex;align-items:center;gap:10px;padding:8px 10px;margin:6px 4px;border-radius:12px;cursor:pointer}
+.charList li:hover{background:#f1f3f7}
+.charList li.active{background:#e7eefc;box-shadow:inset 0 0 0 2px #d0dcff}
+.charList .han{font-family:"KaiTi","Kaiti SC","STKaiti",serif;font-size:28px;width:38px;text-align:center}
+.charList .meta{display:flex;flex-direction:column;line-height:1.1}
+.charList .meta .py{font-size:12px;color:#555}
+.charList .meta .en{font-size:11px;color:#777}
+.card{background:#fff;border-radius:24px;box-shadow:0 12px 40px rgba(0,0,0,.08);padding:20px;max-height:86vh;overflow:auto}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}
+.idx{font-size:14px;color:#666}
+.row{display:grid;grid-template-columns:auto 240px;gap:12px;align-items:center;justify-content:center}
+.mainCol{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:240px}
+.hanzi{font-family:"KaiTi","Kaiti SC","STKaiti",serif;font-size:clamp(110px,18vw,160px);line-height:1;margin:2px 0 6px;text-align:center}
+.pinyin{font-size:26px;font-weight:700;line-height:1.05;text-align:center;margin:0}
+.meaning{color:#666;margin:4px 0 0;text-align:center;line-height:1.05}
+.anim,.video{width:240px;height:240px;display:block;border-radius:16px;object-fit:cover;background:#f0f2f7;margin:0 auto}
+.controls{display:flex;justify-content:center;gap:12px;margin-top:8px;flex-wrap:wrap}
+.controls button{font-size:16px;padding:10px 14px;border:0;border-radius:12px;background:#eef0f4}
+.traceWrap{margin-top:16px}
+.traceHead{display:flex;justify-content:space-between;align-items:center;margin:8px 2px 10px}
+.traceGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.traceCell{position:relative;background:#fafbff;border-radius:14px;padding:8px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
+canvas.trace{width:140px;height:140px;touch-action:none;display:block;margin:0 auto}
+.traceClear{position:absolute;top:6px;right:6px;font-size:10px;line-height:1;border:0;border-radius:6px;padding:4px 6px;background:#eef0f4;cursor:pointer}
+.nav{display:flex;justify-content:space-between;padding:10px 2px 0}
+.nav button{min-width:120px}
+body.saving .controls, body.saving .nav, body.saving .traceClear{visibility:hidden}
+@media (max-width:960px){:root{--sidebar-w:170px}.row{grid-template-columns:1fr}.mainCol{min-height:unset}.traceGrid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:540px){.layout{grid-template-columns:1fr}.sidebar{max-height:220px}.traceGrid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <h3>My characters <a href="../main.html" id="homeLink" style="font-size:12px;color:#3366cc;text-decoration:underline;">🏠 Home</a></h3>
+    <ul id="charList" class="charList"></ul>
+  </aside>
+
+  <main class="card" id="cardRoot">
+    <div class="top">
+      <div class="idx" id="idx">1 / 1</div>
+      <div class="idx" id="hint">Tap 🔊 for audio</div>
+    </div>
+
+    <div class="row">
+      <div class="mainCol">
+        <div class="hanzi"   id="hanzi"></div>
+        <div class="pinyin"  id="pinyin"></div>
+        <div class="meaning" id="meaning"></div>
+      </div>
+      <div>
+        <img   id="animImg" class="anim" style="display:none"/>
+        <video id="animVid" class="video" muted loop playsinline style="display:none"></video>
+      </div>
+    </div>
+
+    <audio id="audio" preload="auto"><source id="srcWav" type="audio/wav"></source></audio>
+
+    <div class="controls">
+      <button id="playBtn">🔊 Play</button>
+      <button id="togglePinyinBtn">Pinyin</button>
+      <button id="toggleMeaningBtn">English</button>
+      <button id="saveBtn">💾 Save Image</button>
+    </div>
+
+    <div class="traceWrap">
+      <div class="traceHead">
+        <div style="font-weight:700">Trace practice</div>
+        <div><button id="clearAllBtn">Clear All</button></div>
+      </div>
+      <div class="traceGrid" id="traceGrid">
+        <div class="traceCell"><button class="traceClear" data-i="0">✕</button><canvas class="trace guided" width="140" height="140"></canvas></div>
+        <div class="traceCell"><button class="traceClear" data-i="1">✕</button><canvas class="trace guided" width="140" height="140"></canvas></div>
+        <div class="traceCell"><button class="traceClear" data-i="2">✕</button><canvas class="trace guided" width="140" height="140"></canvas></div>
+        <div class="traceCell"><button class="traceClear" data-i="3">✕</button><canvas class="trace guided" width="140" height="140"></canvas></div>
+        <div class="traceCell"><button class="traceClear" data-i="4">✕</button><canvas class="trace guided" width="140" height="140"></canvas></div>
+        <div class="traceCell"><button class="traceClear" data-i="5">✕</button><canvas class="trace free" width="140" height="140"></canvas></div>
+        <div class="traceCell"><button class="traceClear" data-i="6">✕</button><canvas class="trace free" width="140" height="140"></canvas></div>
+        <div class="traceCell"><button class="traceClear" data-i="7">✕</button><canvas class="trace free" width="140" height="140"></canvas></div>
+        <div class="traceCell"><button class="traceClear" data-i="8">✕</button><canvas class="trace free" width="140" height="140"></canvas></div>
+        <div class="traceCell"><button class="traceClear" data-i="9">✕</button><canvas class="trace free" width="140" height="140"></canvas></div>
+      </div>
+    </div>
+
+    <div class="nav">
+      <button id="prevBtn">← Prev</button>
+      <button id="nextBtn">Next →</button>
+    </div>
+  </main>
+</div>
+
+<script>
+// numbers ignored; we use the extracted family deck
+window.DECK = [{"hanzi": "家", "pinyin": "jiā", "meaning": "home/house", "audio": "audio/jia1.wav", "media": "media/jia1.gif", "order": 1, "include": true}, {"hanzi": "天空", "pinyin": "tiānkōng", "meaning": "sky", "audio": "audio/tian1kong1.wav", "media": "media/tian1kong1.gif", "order": 2, "include": true}, {"hanzi": "气球", "pinyin": "qìqiú", "meaning": "balloon", "audio": "audio/qi4qiu2.wav", "media": "media/qi4qiu2.gif", "order": 3, "include": true}, {"hanzi": "爸爸", "pinyin": "bàba", "meaning": "dad", "audio": "audio/baba4.wav", "media": "media/baba4.gif", "order": 4, "include": true}, {"hanzi": "妈妈", "pinyin": "māma", "meaning": "mom", "audio": "audio/mama1.wav", "media": "media/mama1.gif", "order": 5, "include": true}, {"hanzi": "哥哥", "pinyin": "gēge", "meaning": "older brother", "audio": "audio/ge1ge.wav", "media": "media/ge1ge.gif", "order": 6, "include": true}, {"hanzi": "姐姐", "pinyin": "jiějie", "meaning": "older sister", "audio": "audio/jie3jie.wav", "media": "media/jie3jie.gif", "order": 7, "include": true}, {"hanzi": "弟弟", "pinyin": "dìdi", "meaning": "younger brother", "audio": "audio/di4di.wav", "media": "media/di4di.gif", "order": 8, "include": true}, {"hanzi": "妹妹", "pinyin": "mèimei", "meaning": "younger sister", "audio": "audio/mei4mei.wav", "media": "media/mei4mei.gif", "order": 9, "include": true}];
+
+const DPR=Math.max(1,Math.min(3,window.devicePixelRatio||1));
+let deck=window.DECK.slice(), idx=0;
+const elH=document.getElementById('hanzi'),
+      elP=document.getElementById('pinyin'),
+      elM=document.getElementById('meaning'),
+      elI=document.getElementById('idx'),
+      audio=document.getElementById('audio'),
+      srcWav=document.getElementById('srcWav'),
+      animImg=document.getElementById('animImg'),
+      animVid=document.getElementById('animVid'),
+      charList=document.getElementById('charList');
+const traces=Array.from(document.querySelectorAll('canvas.trace'));
+
+function renderSidebar(a){
+  charList.innerHTML='';
+  deck.forEach((c,i)=>{
+    const li=document.createElement('li');
+    li.className=i===a?'active':'';
+    li.innerHTML='<div class="han">'+(c.hanzi||'')+'</div><div class="meta"><span class="py">'+(c.pinyin||'')+'</span><span class="en">'+(c.meaning||'')+'</span></div>';
+    li.addEventListener('click',()=>show(i));
+    charList.appendChild(li);
+  });
+}
+
+function drawGrid(ctx,w,h){
+  ctx.clearRect(0,0,w,h);
+  ctx.save();
+  ctx.strokeStyle='rgba(0,0,0,0.35)'; ctx.lineWidth=1*DPR; ctx.strokeRect(0.5*DPR,0.5*DPR,w-1*DPR,h-1*DPR);
+  ctx.beginPath(); ctx.moveTo(w/2,0); ctx.lineTo(w/2,h); ctx.moveTo(0,h/2); ctx.lineTo(w,h/2);
+  ctx.strokeStyle='rgba(0,0,0,0.18)'; ctx.lineWidth=1*DPR; ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(w,h); ctx.moveTo(w,0); ctx.lineTo(0,h);
+  ctx.strokeStyle='rgba(0,0,0,0.12)'; ctx.stroke(); ctx.restore();
+}
+function drawGuide(ctx,w,h,ch){
+  drawGrid(ctx,w,h);
+  if(!ch) return;
+  ctx.save(); ctx.globalAlpha=0.22; ctx.fillStyle='#000'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  var f=Math.floor(h*0.72); ctx.font=f+'px KaiTi, "Kaiti SC", STKaiti, serif';
+  ctx.fillText(ch, w/2, h/2); ctx.restore();
+}
+
+function setupAll(displayWord){
+  const chars = Array.from(displayWord||"");
+  const L = chars.length;
+  traces.forEach((cnv,i)=>{
+    const isGuided = cnv.classList.contains('guided');
+    let ch = "";
+    if (isGuided){
+      if (L >= 2){
+        ch = (i < 4) ? (chars[i % L] || "") : ""; // first 4 cycle, 5th empty
+      } else if (L === 1){
+        ch = (i < 5) ? chars[0] : ""; // single char fills all 5
+      } else {
+        ch = "";
+      }
+    }
+    const cssW=cnv.clientWidth, cssH=cnv.clientHeight;
+    cnv.width=Math.floor(cssW*DPR); cnv.height=Math.floor(cssH*DPR);
+    const ctx=cnv.getContext('2d');
+    ctx.lineCap='round'; ctx.lineJoin='round'; ctx.strokeStyle='rgba(220,30,30,1)'; ctx.lineWidth=6*DPR;
+    if(isGuided) drawGuide(ctx, cnv.width, cnv.height, ch); else drawGrid(ctx, cnv.width, cnv.height);
+    let drawing=false,last=null;
+    function xy(ev){const r=cnv.getBoundingClientRect();let x,y;
+      if(ev.touches&&ev.touches[0]){x=(ev.touches[0].clientX-r.left)*DPR;y=(ev.touches[0].clientY-r.top)*DPR;}
+      else if(ev.changedTouches&&ev.changedTouches[0]){x=(ev.changedTouches[0].clientX-r.left)*DPR;y=(ev.changedTouches[0].clientY-r.top)*DPR;}
+      else{x=(ev.clientX-r.left)*DPR;y=(ev.clientY-r.top)*DPR;} return{x,y};
+    }
+    function start(e){e.preventDefault();drawing=true;last=xy(e);}
+    function move(e){if(!drawing)return;e.preventDefault();const p=xy(e);const c2=cnv.getContext('2d');c2.beginPath();c2.moveTo(last.x,last.y);c2.lineTo(p.x,p.y);c2.stroke();last=p;}
+    function end(e){if(!drawing)return;e.preventDefault();drawing=false;}
+    cnv.addEventListener('pointerdown',start); cnv.addEventListener('pointermove',move); cnv.addEventListener('pointerup',end); cnv.addEventListener('pointerleave',end);
+    cnv.addEventListener('mousedown',start); window.addEventListener('mousemove',(e)=>{ if(drawing) move(e); }); window.addEventListener('mouseup',end);
+    cnv.addEventListener('touchstart',start,{passive:false}); cnv.addEventListener('touchmove',move,{passive:false}); cnv.addEventListener('touchend',end,{passive:false});
+  });
+}
+function clearAll(){
+  const currentWord = (document.getElementById('hanzi')||{}).textContent || '';
+  const chars = Array.from(currentWord||"");
+  const L = chars.length;
+  traces.forEach((cnv,i)=>{
+    const ctx=cnv.getContext('2d');
+    const isGuided = cnv.classList.contains('guided');
+    let ch = "";
+    if (isGuided){
+      if (L >= 2){
+        ch = (i < 4) ? (chars[i % L] || "") : "";
+      } else if (L === 1){
+        ch = (i < 5) ? chars[0] : "";
+      } else {
+        ch = "";
+      }
+    }
+    if(isGuided) drawGuide(ctx, cnv.width, cnv.height, ch); else drawGrid(ctx, cnv.width, cnv.height);
+  });
+}
+
+function bust(u){ if(!u) return u; const j=u.indexOf('?')>=0?'&':'?'; return u+j+'v='+Date.now(); }
+function media(path){
+  animImg.style.display='none'; animVid.style.display='none'; animVid.pause();
+  if(!path) return;
+  const ext=(path.split('.').pop()||'').toLowerCase();
+  if(['mp4','mov','webm'].includes(ext)){ animVid.src=bust(path); animVid.style.display='block'; animVid.play().catch(()=>{}); }
+  else { animImg.src=bust(path); animImg.style.display='block'; }
+}
+
+function show(i){
+  idx=(i+deck.length)%deck.length;
+  const c=deck[idx]||{};
+  document.getElementById('hanzi').textContent=c.hanzi||'';
+  document.getElementById('pinyin').textContent=c.pinyin||'';
+  document.getElementById('meaning').textContent=c.meaning||'';
+  document.getElementById('idx').textContent=(idx+1)+' / '+deck.length;
+  media(c.media);
+  if(c.audio){ srcWav.src=bust(c.audio); audio.load(); }
+  setupAll(c.hanzi||'');
+  renderSidebar(idx);
+}
+
+document.getElementById('playBtn').addEventListener('click',async()=>{ try{ await audio.play(); }catch(e){ alert('Audio could not play.'); } });
+document.getElementById('togglePinyinBtn').addEventListener('click',()=>{
+  const el=document.getElementById('pinyin'); el.style.visibility=(el.style.visibility==='hidden')?'visible':'hidden';
+});
+document.getElementById('toggleMeaningBtn').addEventListener('click',()=>{
+  const el=document.getElementById('meaning'); el.style.visibility=(el.style.visibility==='hidden')?'visible':'hidden';
+});
+document.getElementById('prevBtn').addEventListener('click',()=>show(idx-1));
+document.getElementById('nextBtn').addEventListener('click',()=>show(idx+1));
+document.getElementById('clearAllBtn').addEventListener('click',clearAll);
+document.querySelectorAll('.traceClear').forEach(btn=>{
+  btn.addEventListener('click',(e)=>{
+    e.preventDefault(); e.stopPropagation();
+    const i=parseInt(btn.getAttribute('data-i'),10)||0;
+    const cnv=document.querySelectorAll('canvas.trace')[i];
+    if(!cnv) return;
+    const ctx=cnv.getContext('2d');
+    const isGuided = cnv.classList.contains('guided');
+    const currentWord = (document.getElementById('hanzi')||{}).textContent || '';
+    const chars = Array.from(currentWord||"");
+    let ch = "";
+    if (isGuided){
+      if (chars.length >= 2){ ch = (i < 4) ? (chars[i % chars.length] || "") : ""; }
+      else if (chars.length === 1){ ch = (i < 5) ? chars[0] : ""; }
+      else { ch = ""; }
+    }
+    if(isGuided) drawGuide(ctx, cnv.width, cnv.height, ch); else drawGrid(ctx, cnv.width, cnv.height);
+  });
+});
+
+// draw grids early to avoid blank look before first show()
+document.addEventListener('DOMContentLoaded', ()=>{
+  traces.forEach(c=>{
+    const ctx=c.getContext('2d');
+    drawGrid(ctx, c.width||140, c.height||140);
+  });
+  if(deck.length){ show(0); }
+});
+</script>
+</body>
+</html>

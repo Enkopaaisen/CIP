@@ -1,6 +1,18 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <link rel="preload" as="font" type="font/woff2" href="../font/WenKai-Regular.woff2" crossorigin>
+  <style>
+  @font-face {
+    font-family: 'WenKai';
+    src: url('../font/WenKai-Regular.woff2') format('woff2'),
+         url('../font/WenKai-Regular.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+</style>
+
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>My characters</title>
@@ -18,7 +30,7 @@ body{margin:0;background:#f6f7fb;font-family:-apple-system,system-ui,"PingFang S
 .charList li{display:flex;align-items:center;gap:10px;padding:8px 10px;margin:6px 4px;border-radius:12px;cursor:pointer}
 .charList li:hover{background:#f1f3f7}
 .charList li.active{background:#e7eefc;box-shadow:inset 0 0 0 2px #d0dcff}
-.charList .han{font-family:"KaiTi","Kaiti SC","STKaiti",serif;font-size:28px;width:38px;text-align:center}
+.charList .han{font-family:'WenKai','KaiTi','Kaiti SC','STKaiti',serif;font-size:28px;width:38px;text-align:center}
 .charList .meta{display:flex;flex-direction:column;line-height:1.1}
 .charList .meta .py{font-size:12px;color:#555}
 .charList .meta .en{font-size:11px;color:#777}
@@ -27,7 +39,7 @@ body{margin:0;background:#f6f7fb;font-family:-apple-system,system-ui,"PingFang S
 .idx{font-size:14px;color:#666}
 .row{display:grid;grid-template-columns:auto 240px;gap:12px;align-items:center;justify-content:center}
 .mainCol{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:240px}
-.hanzi{font-family:"KaiTi","Kaiti SC","STKaiti",serif;font-size:clamp(110px,18vw,160px);line-height:1;margin:2px 0 6px;text-align:center}
+.hanzi{font-family:'WenKai','KaiTi','Kaiti SC','STKaiti',serif;font-size:clamp(110px,18vw,160px);line-height:1;margin:2px 0 6px;text-align:center}
 .pinyin{font-size:26px;font-weight:700;line-height:1.05;text-align:center;margin:0}
 .meaning{color:#666;margin:4px 0 0;text-align:center;line-height:1.05}
 .anim,.video{width:240px;height:240px;display:block;border-radius:16px;object-fit:cover;background:#f0f2f7;margin:0 auto}
@@ -44,12 +56,267 @@ canvas.trace{width:140px;height:140px;touch-action:none;display:block;margin:0 a
 body.saving .controls, body.saving .nav, body.saving .traceClear{visibility:hidden}
 @media (max-width:960px){:root{--sidebar-w:170px}.row{grid-template-columns:1fr}.mainCol{min-height:unset}.traceGrid{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:540px){.layout{grid-template-columns:1fr}.sidebar{max-height:220px}.traceGrid{grid-template-columns:1fr}}
-@media (max-height:860px){.hanzi{font-size:clamp(80px,14vw,120px)}.anim,.video{width:200px;height:200px}canvas.trace{width:120px;height:120px}.traceGrid{gap:8px}.card{padding:16px}}
-@media (max-height:740px){.hanzi{font-size:clamp(68px,12vw,100px)}.anim,.video{width:180px;height:180px}canvas.trace{width:108px;height:108px}.traceGrid{gap:6px}.card{padding:14px}}
-@media (max-height:680px){.hanzi{font-size:clamp(56px,10vw,88px)}.anim,.video{width:160px;height:160px}canvas.trace{width:100px;height:100px}.traceGrid{gap:5px}}
-@media (max-height:620px){.hanzi{font-size:clamp(52px,9vw,80px)}.anim,.video{width:150px;height:150px}canvas.trace{width:96px;height:96px}.traceGrid{gap:5px}.card{padding:12px}}
-@media (max-height:560px){.hanzi{font-size:clamp(44px,8vw,72px)}.anim,.video{width:140px;height:140px}canvas.trace{width:88px;height:88px}.traceGrid{gap:4px}.card{padding:10px}.controls button{padding:8px 10px;font-size:14px}}
 </style>
+
+<style>
+/* layout helpers (non-destructive) */
+.row.layout-enhanced { gap: 16px; align-items: flex-start; margin-top: 16px; }
+.sideCol { display: flex; flex-direction: column; gap: 8px; align-items: stretch; }
+.mediaWrap { display: flex; align-items: center; gap: 12px; }
+.saveCol { display: flex; flex-direction: column; }
+.traceWrap { margin-bottom: 12px; } /* space below tracing grid */
+.sideCol button, .saveCol button { white-space: nowrap; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  try {
+    const trace = document.querySelector('.traceWrap');
+    const row = document.querySelector('.row');
+    if (trace && row && trace !== row.previousElementSibling) {
+      row.parentNode.insertBefore(trace, row); // put tracing above row
+    }
+
+    if (row) row.classList.add('layout-enhanced');
+
+    // Prepare side column for three controls
+    const sideCol = document.createElement('div');
+    sideCol.className = 'sideCol';
+
+    // Find existing buttons by id
+    const play = document.getElementById('playBtn');
+    const pin = document.getElementById('togglePinyinBtn');
+    const eng = document.getElementById('toggleMeaningBtn');
+
+    // A helper to move an element if found
+    function moveIf(el){ if(el){ sideCol.appendChild(el); } }
+
+    // Find a reasonable insertion point: before the main char column
+    const mainCol = document.querySelector('.row .mainCol');
+    if (mainCol) {
+      row.insertBefore(sideCol, mainCol);
+    } else {
+      row.insertBefore(sideCol, row.firstChild);
+    }
+
+    moveIf(play);
+    moveIf(pin);
+    moveIf(eng);
+
+    // If the original controls container is now empty, hide it
+    const controls = document.querySelector('.controls');
+    if (controls && controls.children.length === 0) {
+      controls.style.display = 'none';
+    }
+
+    // Wrap media (img/video) and put Save button to the right
+    const saveBtn = document.getElementById('saveBtn');
+    const animImg = document.getElementById('animImg');
+    const video = document.querySelector('video, .videoWrap');
+
+    // Prefer image; if not, try video
+    const mediaEl = animImg || video;
+    if (mediaEl) {
+      // If mediaEl is already inside a parent container, we can wrap that parent
+      let container = mediaEl.parentElement;
+      // Create a wrapper
+      const wrap = document.createElement('div');
+      wrap.className = 'mediaWrap';
+
+      // Insert wrapper before the container, then move container inside wrap
+      container.parentNode.insertBefore(wrap, container);
+      wrap.appendChild(container);
+
+      // Now add save button on the right if present
+      if (saveBtn) {
+        const saveCol = document.createElement('div');
+        saveCol.className = 'saveCol';
+        saveCol.appendChild(saveBtn);
+        wrap.appendChild(saveCol);
+      }
+    }
+  } catch (e) {
+    console.warn('Layout enhancement failed:', e);
+  }
+});
+</script>
+
+
+<style>
+/* Narrow side buttons to match old width */
+.sideCol { align-items: flex-start; }
+.sideCol button {
+  width: auto;
+  min-width: 0;
+  align-self: flex-start;
+  display: inline-block;
+}
+</style>
+
+
+<style>
+/* Spacing: reduce gap between columns in the main row */
+.row.layout-enhanced {
+  column-gap: 8px;
+  gap: 8px;
+}
+
+/* Align media area and save button to the top (same line as Play button) */
+.mediaWrap {
+  align-items: flex-start;   /* top align image/video and save column */
+  gap: 8px;                  /* tighter spacing */
+}
+
+/* Make sure the Save Image column starts at the very top and doesn't stretch */
+.saveCol {
+  align-self: flex-start;
+  justify-content: flex-start;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+/* Extra safety: avoid unintended margins inside wrapper children */
+.mediaWrap > * {
+  margin-top: 0 !important;
+}
+
+/* Keep side buttons compact and top-aligned (from previous step) */
+.sideCol { align-items: flex-start; }
+.sideCol button { width: auto; min-width: 0; align-self: flex-start; display: inline-block; }
+</style>
+
+
+<style>
+/* Force the main row into a tight 3-column grid: [buttons] [main char] [media+save] */
+.row.layout-enhanced {
+  display: grid !important;
+  grid-template-columns: auto 1fr auto !important;
+  justify-content: flex-start !important;
+  align-items: start !important;
+  column-gap: 8px !important;
+  gap: 8px !important;
+}
+
+/* Ensure inner blocks don't introduce extra margins */
+.row.layout-enhanced > * { margin: 0 !important; }
+.mediaWrap { align-items: flex-start !important; gap: 8px !important; }
+.saveCol { align-self: flex-start !important; }
+.sideCol { align-items: flex-start !important; }
+.sideCol button { width: auto !important; min-width: 0 !important; }
+</style>
+
+
+<style>
+/* Make columns hug content: [buttons] [main (shrink)] [media+save] */
+.row.layout-enhanced {
+  grid-template-columns: auto max-content auto !important;
+  column-gap: 3px !important; /* ~1/3 of previous 8px */
+  gap: 3px !important;
+}
+
+/* Prevent middle from stretching */
+.row.layout-enhanced .mainCol {
+  width: auto !important;
+  max-width: none !important;
+}
+</style>
+
+
+<style>
+/* Ultra-compact spacing between the first and second columns */
+.row.layout-enhanced {
+  column-gap: 2px !important;
+  gap: 2px !important;
+  justify-items: start !important;
+}
+/* Remove any side padding/margins that could add hidden space */
+.sideCol, .mainCol {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+/* Ensure buttons don't reserve extra space */
+.sideCol button {
+  margin: 0 !important;
+}
+/* Ensure the big character block doesn't add inner spacing */
+.mainCol > * {
+  margin-top: 0 !important;
+  margin-left: 0 !important;
+}
+</style>
+
+
+<style>
+/* Shift entire row right by half the Play button width; increase col gap to 4px */
+.row.layout-enhanced {
+  margin-left: var(--rowOffset, 0px) !important;
+  column-gap: 4px !important;
+  gap: 4px !important;
+}
+</style>
+
+<script>
+(function(){
+  function setRowOffset(){
+    var play = document.getElementById('playBtn');
+    var row = document.querySelector('.row.layout-enhanced') || document.querySelector('.row');
+    if(!play || !row) return;
+    var half = Math.round(play.getBoundingClientRect().width / 2);
+    row.style.setProperty('--rowOffset', half + 'px');
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setRowOffset);
+  } else {
+    setRowOffset();
+  }
+  window.addEventListener('resize', setRowOffset);
+})();
+</script>
+
+
+<script>
+(function(){
+  function isSingleChar(text){
+    if(!text) return false;
+    const s = text.trim();
+    // Treat 1 visible codepoint as "single char"
+    return [...s].length === 1;
+  }
+  function matchMainColWidth(){
+    const hanzi = document.getElementById('hanzi');
+    const mainCol = document.querySelector('.mainCol');
+    const row = document.querySelector('.row');
+    if(!hanzi || !mainCol || !row) return;
+    if(!isSingleChar(hanzi.textContent)) {
+      mainCol.style.minWidth = '';
+      return;
+    }
+    // Prefer image width; fallback to video width
+    const img = document.getElementById('animImg');
+    const video = document.querySelector('video');
+    let w = 0;
+    if (img && img.offsetWidth) w = img.offsetWidth;
+    else if (video && video.offsetWidth) w = video.offsetWidth;
+    if (w > 0) {
+      mainCol.style.minWidth = w + 'px';
+    }
+  }
+  function onReady(fn){
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+    else fn();
+  }
+  onReady(function(){
+    matchMainColWidth();
+    // Recompute when image loads or on resize
+    const img = document.getElementById('animImg');
+    if (img) {
+      img.addEventListener('load', matchMainColWidth, { once:false });
+    }
+    window.addEventListener('resize', matchMainColWidth);
+  });
+})();
+</script>
+
 </head>
 <body>
 <div class="layout">
@@ -60,7 +327,7 @@ body.saving .controls, body.saving .nav, body.saving .traceClear{visibility:hidd
 
   <main class="card" id="cardRoot">
     <div class="top">
-      <div class="idx" id="idx">1 / 10</div>
+      <div class="idx" id="idx"> 1 / 10 </div>
       <div class="idx" id="hint">Tap 🔊 for audio</div>
     </div>
 
@@ -112,6 +379,7 @@ body.saving .controls, body.saving .nav, body.saving .traceClear{visibility:hidd
 </div>
 
 <script>
+// numbers ignored; we use the extracted family deck
 window.DECK = [
   {"hanzi":"一","pinyin":"yī","meaning":"one",  "audio":"audio/yi1.wav",  "media":"media/yi1.gif",  "order":1, "include":true},
   {"hanzi":"二","pinyin":"èr","meaning":"two",  "audio":"audio/er4.wav",  "media":"media/er4.gif",  "order":2, "include":true},
@@ -162,44 +430,61 @@ function drawGuide(ctx,w,h,ch){
   drawGrid(ctx,w,h);
   if(!ch) return;
   ctx.save(); ctx.globalAlpha=0.22; ctx.fillStyle='#000'; ctx.textAlign='center'; ctx.textBaseline='middle';
-  var f=Math.floor(h*0.72); ctx.font=f+'px KaiTi, "Kaiti SC", STKaiti, serif';
+  var f=Math.floor(h*0.72); ctx.font = f+'px WenKai, KaiTi, "Kaiti SC", STKaiti, serif';
   ctx.fillText(ch, w/2, h/2); ctx.restore();
-}
-
-function setupTrace(cnv,ch,isGuided){
-  const cssW=cnv.clientWidth, cssH=cnv.clientHeight;
-  cnv.width=Math.floor(cssW*DPR); cnv.height=Math.floor(cssH*DPR);
-  const ctx=cnv.getContext('2d'); ctx.lineCap='round'; ctx.lineJoin='round'; ctx.strokeStyle='rgba(220,30,30,1)'; ctx.lineWidth=6*DPR;
-  if(isGuided) drawGuide(ctx,cnv.width,cnv.height,ch); else drawGrid(ctx,cnv.width,cnv.height);
-  let drawing=false,last=null;
-  function xy(ev){const r=cnv.getBoundingClientRect();let x,y;
-    if(ev.touches&&ev.touches[0]){x=(ev.touches[0].clientX-r.left)*DPR;y=(ev.touches[0].clientY-r.top)*DPR;}
-    else if(ev.changedTouches&&ev.changedTouches[0]){x=(ev.changedTouches[0].clientX-r.left)*DPR;y=(ev.changedTouches[0].clientY-r.top)*DPR;}
-    else{x=(ev.clientX-r.left)*DPR;y=(ev.clientY-r.top)*DPR;} return{x,y};
-  }
-  function start(e){e.preventDefault();drawing=true;last=xy(e);}
-  function move(e){if(!drawing)return;e.preventDefault();const p=xy(e);const c2=cnv.getContext('2d');c2.beginPath();c2.moveTo(last.x,last.y);c2.lineTo(p.x,p.y);c2.stroke();last=p;}
-  function end(e){if(!drawing)return;e.preventDefault();drawing=false;}
-  cnv.addEventListener('pointerdown',start); cnv.addEventListener('pointermove',move); cnv.addEventListener('pointerup',end); cnv.addEventListener('pointerleave',end);
-  cnv.addEventListener('mousedown',start); window.addEventListener('mousemove',(e)=>{ if(drawing) move(e); }); window.addEventListener('mouseup',end);
-  cnv.addEventListener('touchstart',start,{passive:false}); cnv.addEventListener('touchmove',move,{passive:false}); cnv.addEventListener('touchend',end,{passive:false});
 }
 
 function setupAll(displayWord){
   const chars = Array.from(displayWord||"");
+  const L = chars.length;
   traces.forEach((cnv,i)=>{
     const isGuided = cnv.classList.contains('guided');
-    const ch = (isGuided && i < 5) ? (chars[i] || "") : "";
-    setupTrace(cnv, ch, isGuided);
+    let ch = "";
+    if (isGuided){
+      if (L >= 2){
+        ch = (i < 4) ? (chars[i % L] || "") : ""; // first 4 cycle, 5th empty
+      } else if (L === 1){
+        ch = (i < 5) ? chars[0] : ""; // single char fills all 5
+      } else {
+        ch = "";
+      }
+    }
+    const cssW=cnv.clientWidth, cssH=cnv.clientHeight;
+    cnv.width=Math.floor(cssW*DPR); cnv.height=Math.floor(cssH*DPR);
+    const ctx=cnv.getContext('2d');
+    ctx.lineCap='round'; ctx.lineJoin='round'; ctx.strokeStyle='rgba(220,30,30,1)'; ctx.lineWidth=6*DPR;
+    if(isGuided) drawGuide(ctx, cnv.width, cnv.height, ch); else drawGrid(ctx, cnv.width, cnv.height);
+    let drawing=false,last=null;
+    function xy(ev){const r=cnv.getBoundingClientRect();let x,y;
+      if(ev.touches&&ev.touches[0]){x=(ev.touches[0].clientX-r.left)*DPR;y=(ev.touches[0].clientY-r.top)*DPR;}
+      else if(ev.changedTouches&&ev.changedTouches[0]){x=(ev.changedTouches[0].clientX-r.left)*DPR;y=(ev.changedTouches[0].clientY-r.top)*DPR;}
+      else{x=(ev.clientX-r.left)*DPR;y=(ev.clientY-r.top)*DPR;} return{x,y};
+    }
+    function start(e){e.preventDefault();drawing=true;last=xy(e);}
+    function move(e){if(!drawing)return;e.preventDefault();const p=xy(e);const c2=cnv.getContext('2d');c2.beginPath();c2.moveTo(last.x,last.y);c2.lineTo(p.x,p.y);c2.stroke();last=p;}
+    function end(e){if(!drawing)return;e.preventDefault();drawing=false;}
+    cnv.addEventListener('pointerdown',start); cnv.addEventListener('pointermove',move); cnv.addEventListener('pointerup',end); cnv.addEventListener('pointerleave',end);
+    cnv.addEventListener('mousedown',start); window.addEventListener('mousemove',(e)=>{ if(drawing) move(e); }); window.addEventListener('mouseup',end);
+    cnv.addEventListener('touchstart',start,{passive:false}); cnv.addEventListener('touchmove',move,{passive:false}); cnv.addEventListener('touchend',end,{passive:false});
   });
 }
 function clearAll(){
   const currentWord = (document.getElementById('hanzi')||{}).textContent || '';
   const chars = Array.from(currentWord||"");
+  const L = chars.length;
   traces.forEach((cnv,i)=>{
     const ctx=cnv.getContext('2d');
     const isGuided = cnv.classList.contains('guided');
-    const ch = (isGuided && i < 5) ? (chars[i] || "") : "";
+    let ch = "";
+    if (isGuided){
+      if (L >= 2){
+        ch = (i < 4) ? (chars[i % L] || "") : "";
+      } else if (L === 1){
+        ch = (i < 5) ? chars[0] : "";
+      } else {
+        ch = "";
+      }
+    }
     if(isGuided) drawGuide(ctx, cnv.width, cnv.height, ch); else drawGrid(ctx, cnv.width, cnv.height);
   });
 }
@@ -246,63 +531,244 @@ document.querySelectorAll('.traceClear').forEach(btn=>{
     const isGuided = cnv.classList.contains('guided');
     const currentWord = (document.getElementById('hanzi')||{}).textContent || '';
     const chars = Array.from(currentWord||"");
-    const ch = (isGuided && i < 5) ? (chars[i] || "") : "";
+    let ch = "";
+    if (isGuided){
+      if (chars.length >= 2){ ch = (i < 4) ? (chars[i % chars.length] || "") : ""; }
+      else if (chars.length === 1){ ch = (i < 5) ? chars[0] : ""; }
+      else { ch = ""; }
+    }
     if(isGuided) drawGuide(ctx, cnv.width, cnv.height, ch); else drawGrid(ctx, cnv.width, cnv.height);
   });
 });
 
-function saveImage(){
-  document.body.classList.add('saving');
-  requestAnimationFrame(()=>{
-    try{
-      const cols=5,rows=2,boxW=220,boxH=220,pad=24,side=40,bottom=40;
-      const gridW=cols*boxW+(cols-1)*pad, gridH=rows*boxH+(rows-1)*pad;
-      const titleH=240, W=side*2+gridW, H=100+titleH+80+gridH+bottom+40;
-      const c=document.createElement('canvas'); c.width=W; c.height=H;
-      const ctx=c.getContext('2d');
-
-      ctx.fillStyle='#fff'; ctx.fillRect(0,0,W,H);
-      ctx.fillStyle='#000'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
-      ctx.font='bold 180px KaiTi, "Kaiti SC", STKaiti, serif';
-      ctx.fillText(document.getElementById('hanzi').textContent||'', side, 240);
-
-      const startY=420;
-      ctx.font='700 24px -apple-system, system-ui, sans-serif'; ctx.fillStyle='#000'; ctx.fillText('Tracing', side, startY-18);
-
-      const canvases=Array.from(document.querySelectorAll('canvas.trace'));
-      for(let r=0;r<rows;r++){
-        for(let col=0;col<cols;col++){
-          const i=r*cols+col, x=side+col*(boxW+pad), y=startY+r*(boxH+pad);
-          ctx.strokeStyle='#e0e4ef'; ctx.lineWidth=2; ctx.strokeRect(x-4,y-4,boxW+8,boxH+8);
-          const src=canvases[i];
-          if(src){ try{ ctx.drawImage(src, x, y, boxW, boxH); }catch(e){} }
-        }
-      }
-
-      const stamp=new Date().toLocaleString();
-      ctx.font='400 20px -apple-system, system-ui, sans-serif'; ctx.fillStyle='#666';
-      ctx.fillText('Saved: '+stamp, side, H-bottom/2);
-
-      const filename='card_'+(document.getElementById('hanzi').textContent||'')+'_'+Date.now()+'.png';
-      function finish(url, revoke){
-        try{ const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove(); }catch(e){}
-        setTimeout(()=>{ if(revoke) URL.revokeObjectURL(url); }, 30000);
-        document.body.classList.remove('saving');
-      }
-      if(c.toBlob){
-        c.toBlob((blob)=>{ try{ const url=URL.createObjectURL(blob); finish(url,true);}catch(e){ finish(c.toDataURL('image/png'),false);} },'image/png');
-      }else{
-        finish(c.toDataURL('image/png'),false);
-      }
-    }catch(e){
-      alert('Could not save the image.');
-      document.body.classList.remove('saving');
-    }
+// draw grids early to avoid blank look before first show()
+document.addEventListener('DOMContentLoaded', ()=>{
+  traces.forEach(c=>{
+    const ctx=c.getContext('2d');
+    drawGrid(ctx, c.width||140, c.height||140);
   });
-}
-document.getElementById('saveBtn').addEventListener('click',saveImage);
-
-(function(){ if(deck.length){ show(0); } })();
+  if(deck.length){ show(0); }
+});
 </script>
+
+<script>
+(function(){
+  
+function exportTraceGridPNG(){
+  const grid = document.querySelector('.traceGrid');
+  const hanziEl = document.getElementById('hanzi');
+  const charText = (hanziEl && hanziEl.textContent.trim()) || '';
+  const name = charText || 'card';
+  if(!grid){
+    alert('No tracing grid found to save.');
+    return;
+  }
+  const canvases = Array.from(grid.querySelectorAll('canvas'));
+  if (!canvases.length){
+    alert('No canvases to export.');
+    return;
+  }
+  // Determine cell size from first canvas
+  const cw = canvases[0].width, ch = canvases[0].height;
+  // Default 5 columns
+  const cols = Math.min(5, canvases.length);
+  const rows = Math.ceil(canvases.length / cols);
+  const pad = 8; // padding around cells
+  // Header band for big character
+  const headerH = Math.max(160, Math.floor(ch * 1.2)); // proportional header
+  const W = cols * cw + (cols + 1) * pad;
+  const H = headerH + (rows * ch + (rows + 1) * pad);
+
+  const out = document.createElement('canvas');
+  out.width = W; out.height = H;
+  const ctx = out.getContext('2d');
+
+  // Background
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, W, H);
+
+  // --- Draw big character in header (centered) ---
+  if (charText) {
+    // Try to match page font
+    ctx.fillStyle = '#000000';
+    // Choose font size to roughly match cell size
+    const f = Math.floor(headerH * 0.7);
+    ctx.font = `bold ${f}px WenKai, KaiTi, "Kaiti SC", STKaiti, serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(charText, W / 2, Math.floor(headerH * 0.52));
+  }
+
+  // --- Draw trace canvases ---
+  canvases.forEach((c,i)=>{
+    const r = Math.floor(i / cols), k = i % cols;
+    const x = pad + k * (cw + pad);
+    const y = headerH + pad + r * (ch + pad);
+    try { ctx.drawImage(c, x, y); } catch(e) {}
+  });
+
+  // --- Timestamp at bottom-right ---
+  try {
+    const ts = new Date().toLocaleString();
+    ctx.font = '12px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial';
+    ctx.fillStyle = '#333';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillText(ts, W - 8, H - 8);
+  } catch (e) {}
+
+  // Download
+  const a = document.createElement('a');
+  a.href = out.toDataURL('image/png');
+  a.download = name + '_card.png';
+  a.click();
+}
+const canvases = Array.from(grid.querySelectorAll('canvas'));
+    if (!canvases.length){
+      alert('No canvases to export.');
+      return;
+    }
+    // Determine cell size from first canvas
+    const cw = canvases[0].width, ch = canvases[0].height;
+    // Determine columns/rows: default 5 cols, ceil(n/5) rows
+    const cols = Math.min(5, canvases.length);
+    const rows = Math.ceil(canvases.length / cols);
+    // Offscreen canvas
+    const pad = 8; // small padding around cells
+    const W = cols * cw + (cols + 1) * pad;
+    const H = rows * ch + (rows + 1) * pad;
+    const out = document.createElement('canvas');
+    out.width = W; out.height = H;
+    const ctx = out.getContext('2d');
+    // white background for better print/export
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0,0,W,H);
+    // draw each cell
+    canvases.forEach((c,i)=>{
+      const r = Math.floor(i / cols), k = i % cols;
+      const x = pad + k * (cw + pad);
+      const y = pad + r * (ch + pad);
+      try { ctx.drawImage(c, x, y); } catch(e) {}
+    });
+    // Download
+    const a = document.createElement('a');
+    a.href = out.toDataURL('image/png');
+    a.download = name + '_trace.png';
+    a.click();
+  }
+
+  function wire(){
+    const btn = document.getElementById('saveBtn');
+    if(!btn) return;
+    // Avoid double binding
+    if (!btn.dataset._saveWired) {
+      btn.addEventListener('click', exportTraceGridPNG);
+      btn.dataset._saveWired = '1';
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', wire);
+  } else {
+    wire();
+  }
+})();
+</script>
+
+
+<script>
+(function(){
+  // Override export function to use toBlob + object URL (more reliable for downloads)
+  function exportTraceGridPNG(){
+    const grid = document.querySelector('.traceGrid');
+    const hanziEl = document.getElementById('hanzi');
+    const charText = (hanziEl && hanziEl.textContent.trim()) || '';
+    const name = charText || 'card';
+    if (!grid) { alert('No tracing grid found to save.'); return; }
+    const canvases = Array.from(grid.querySelectorAll('canvas'));
+    if (!canvases.length) { alert('No canvases to export.'); return; }
+
+    const cw = canvases[0].width, ch = canvases[0].height;
+    const cols = Math.min(5, canvases.length);
+    const rows = Math.ceil(canvases.length / cols);
+    const pad = 8;
+    const headerH = Math.max(160, Math.floor(ch * 1.2));
+    const W = cols * cw + (cols + 1) * pad;
+    const H = headerH + (rows * ch + (rows + 1) * pad);
+
+    const out = document.createElement('canvas');
+    out.width = W; out.height = H;
+    const ctx = out.getContext('2d');
+
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0,0,W,H);
+
+    if (charText) {
+      const f = Math.floor(headerH * 0.7);
+      ctx.fillStyle = '#000';
+      ctx.font = 'bold ' + f + 'px WenKai, KaiTi, "Kaiti SC", STKaiti, serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(charText, W/2, Math.floor(headerH * 0.52));
+    }
+
+    canvases.forEach((c,i)=>{
+      const r = Math.floor(i / cols), k = i % cols;
+      const x = pad + k * (cw + pad);
+      const y = headerH + pad + r * (ch + pad);
+      try { ctx.drawImage(c, x, y); } catch(e) {}
+    });
+
+    try {
+      const ts = new Date().toLocaleString();
+      ctx.font = '12px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial';
+      ctx.fillStyle = '#333';
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillText(ts, W - 8, H - 8);
+    } catch(e){}
+
+    function triggerDownload(blob){
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = name + '_card.png';
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 0);
+    }
+
+    if (out.toBlob) {
+      out.toBlob(triggerDownload, 'image/png');
+    } else {
+      // Fallback for older browsers
+      const a = document.createElement('a');
+      a.href = out.toDataURL('image/png');
+      a.download = name + '_card.png';
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+  }
+
+  // Ensure the save button is wired to this latest function
+  function wire(){
+    const btn = document.getElementById('saveBtn');
+    if(!btn) return;
+    btn.onclick = null;
+    btn.removeEventListener && btn.removeEventListener('click', exportTraceGridPNG);
+    btn.addEventListener('click', exportTraceGridPNG);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', wire);
+  } else {
+    wire();
+  }
+})();
+</script>
+
 </body>
 </html>

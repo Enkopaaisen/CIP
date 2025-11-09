@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hanzi Trace Module — Demo</title>
+  <style>
+    body{font:14px/1.5 -apple-system,system-ui,Segoe UI,Roboto,Arial;margin:0;background:#f6f7f9;color:#111}
+    .wrap{max-width:900px;margin:24px auto;padding:0 16px}
+    .card{background:#fff;border:1px solid #ddd;border-radius:12px;padding:16px;box-shadow:0 6px 24px rgba(0,0,0,.06)}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h2 style="margin:0 0 12px;">Hanzi Trace Module — Minimal Demo</h2>
+      <div class="row">
+        <label>Char <input id="ch" value="家" style="width:80px"></label>
+        <label>Base Path <input id="bp" value="./media/hanzi/" style="width:220px"></label>
+        <button id="mountBtn">Mount/Re-mount</button>
+      </div>
+      <div id="mountHere"></div>
+      <p style="color:#666;margin-top:12px;">Module shows only <b>Undo</b>, <b>Clear All</b>, and <b>Save Image</b> (with tooltips). It reads <code>&lt;char&gt;_settings.json</code>, <code>&lt;char&gt;_strokes.json</code>, and <code>&lt;char&gt;_dots.json</code> from the base folder.</p>
+      <hr>
+      <p><b>Included sample files</b> for testing: <code>media/hanzi/家_settings.json</code>, <code>media/hanzi/家_strokes.json</code>, <code>media/hanzi/家_dots.json</code>. Replace these with your exported ones.</p>
+    </div>
+  </div>
+
+  <script src="./hanzi_trace_module.js"></script>
+  <script>
+    let instance = null;
+    function mountNow(){
+      const el = document.getElementById('mountHere');
+      el.innerHTML = '';
+      instance = HanziTraceModule.mount(el, {
+        char: document.getElementById('ch').value || '家',
+        basePath: document.getElementById('bp').value || './media/hanzi/'
+      });
+    }
+    document.getElementById('mountBtn').onclick = mountNow;
+    mountNow();
+  </script>
+</body>
+</html>

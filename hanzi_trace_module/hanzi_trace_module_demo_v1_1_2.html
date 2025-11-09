@@ -1,0 +1,73 @@
+
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hanzi Trace Module v1.1.2 — Demo (Numbered Dots)</title>
+  <style>
+    body{font:14px/1.5 -apple-system,system-ui,Segoe UI,Roboto,Arial;margin:0;background:#f6f7f9;color:#111}
+    .wrap{max-width:980px;margin:24px auto;padding:0 16px}
+    .card{background:#fff;border:1px solid #ddd;border-radius:12px;padding:16px;box-shadow:0 6px 24px rgba(0,0,0,.06)}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+    input[type=file]{display:inline-block}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h2 style="margin:0 0 12px;">Hanzi Trace Module v1.1.2 — Demo (Numbered Dots)</h2>
+
+      <div class="row">
+        <label>Char <input id="ch" value="家" style="width:80px"></label>
+        <label>Base Path <input id="bp" value="./media/hanzi/" style="width:220px"></label>
+        <button id="mountBtn">Mount / Reload (fetch)</button>
+      </div>
+
+      <div class="row">
+        <div><b>OR</b> Load Locally:</div>
+        <input id="settingsFile" type="file" accept="application/json" title="Select <char>_settings.json">
+        <input id="strokesFile"  type="file" accept="application/json" title="Select <char>_strokes.json">
+        <input id="dotsFile"     type="file" accept="application/json" title="Select <char>_dots.json">
+        <button id="mountLocal">Mount from Selected Files</button>
+      </div>
+
+      <div id="mountHere"></div>
+      <p style="color:#666;margin-top:12px;">Numbers sit <em>on the dots</em> with a white stroke outline for contrast. Visibility follows <code>showDots</code> (default: active-only).</p>
+    </div>
+  </div>
+
+  <script src="./hanzi_trace_module_v1_1_2.js"></script>
+  <script>
+    let instance = null;
+    function mountFetch(){
+      const el = document.getElementById('mountHere');
+      el.innerHTML = '';
+      instance = HanziTraceModule.mount(el, {
+        char: document.getElementById('ch').value || '家',
+        basePath: document.getElementById('bp').value || './media/hanzi/',
+        showDots: "active",
+        labelScale: 2.0
+      });
+    }
+    async function readJSON(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>{ try{res(JSON.parse(String(r.result||"")));}catch(e){rej(e);} }; r.onerror=rej; r.readAsText(file); }); }
+    async function mountFromLocal(){
+      const ch = document.getElementById('ch').value || '家';
+      const sF = document.getElementById('settingsFile').files[0];
+      const stF= document.getElementById('strokesFile').files[0];
+      const dF = document.getElementById('dotsFile').files[0];
+      if(!stF || !dF){ alert("Please select both strokes and dots files (settings optional)."); return; }
+      const pre = {
+        settings: sF ? await readJSON(sF) : null,
+        strokes: await readJSON(stF),
+        dots: await readJSON(dF)
+      };
+      const el = document.getElementById('mountHere'); el.innerHTML='';
+      instance = HanziTraceModule.mount(el, { char: ch, preloaded: pre, showDots: "active", labelScale: 2.0 });
+    }
+    document.getElementById('mountBtn').onclick = mountFetch;
+    document.getElementById('mountLocal').onclick = mountFromLocal;
+    mountFetch();
+  </script>
+</body>
+</html>

@@ -237,7 +237,9 @@ function bust(u){ return bustUrl(u); }
         <div class="traceCell"><span class="badge">4</span><button class="traceClear" data-i="3">✕</button><canvas class="trace guided" width="140" height="140"></canvas></div>
         <div class="traceCell"><span class="badge">5</span><button class="traceClear" data-i="4">✕</button><canvas class="trace guided" width="140" height="140"></canvas></div>
         <!-- Bottom row 6..10 --></div>
-    </div>
+    
+<div id="trace-slot-main" style="width:320px;height:320px"></div>
+</div>
 
     <!-- MAIN ROW: buttons | main-char grids | image | save (small) -->
     <div class="row">
@@ -1546,6 +1548,85 @@ window.DECK = [
   }
   document.addEventListener('DOMContentLoaded', populateFromDeck);
   window.addEventListener('deckReady', populateFromDeck);
+})();
+</script>
+
+
+<script id="mount-tracer-allchars">
+(function(){
+  function currentChar(){
+    // Try active list item
+    var active = document.querySelector('#charList li.active');
+    if (active) return active.getAttribute('data-char') || active.textContent.trim();
+    // Try bigChar text if present
+    var bc = document.getElementById('bigChar');
+    if (bc && bc.textContent.trim()) return bc.textContent.trim();
+    // Try selected option in a select (if your UI uses a select)
+    var sel = document.querySelector('#charSelect, select[data-role="char"]');
+    if (sel && sel.value) return sel.value.trim();
+    return '';
+  }
+
+  function ensureTrace(char){
+    var el = document.getElementById('trace-slot-main');
+    if(!el) return;
+    el.innerHTML = "";
+    if (typeof window.HanziTraceModule === 'undefined'){
+      // Helpful hint if the module file is missing
+      el.innerHTML = '<div style="padding:8px;color:#b00020;font-weight:600">Tracing module not found.<br/>' +
+                     'Place <code>hanzi_trace_module_prod_v1_1_2.js</code> next to this HTML and ' +
+                     'JSONs under <code>media/hanzi/</code>: <code>'+char+'_strokes.json</code>, ' +
+                     '<code>'+char+'_dots.json</code>, <code>'+char+'_settings.json</code>.</div>';
+      return;
+    }
+    try{
+      HanziTraceModule.mount(el, { char: char, basePath: './media/hanzi/', showDots: 'active', labelScale: 2.0 });
+    }catch(e){
+      el.innerHTML = '<div style="padding:8px;color:#b00020;font-weight:600">Trace mount error: '+String(e)+'</div>';
+    }
+  }
+
+  // 3a) On load, mount for the current char
+  document.addEventListener('DOMContentLoaded', function(){
+    var ch = currentChar();
+    if (ch) ensureTrace(ch);
+  });
+
+  // 3b) When user clicks a char in the menu
+  document.addEventListener('click', function(e){
+    var li = e.target.closest && e.target.closest('#charList li[data-char]');
+    if (!li) return;
+    // update active state if the page doesn't already
+    var ul = li.parentElement;
+    if (ul) ul.querySelectorAll('li').forEach(function(x){ x.classList.remove('active'); });
+    li.classList.add('active');
+    var ch = li.getAttribute('data-char') || li.textContent.trim();
+    ensureTrace(ch);
+  }, true);
+
+  // 3c) Patch window.show(i) if the page uses it to navigate
+  var prevShow = window.show;
+  if (typeof prevShow === 'function'){
+    window.show = function(i){
+      prevShow.apply(this, arguments);
+      var ch = currentChar();
+      if (ch) ensureTrace(ch);
+    };
+  }
+
+  // 3d) Observe bigChar changes (covers any code path that swaps the main glyph)
+  var bc = document.getElementById('bigChar');
+  if (bc && window.MutationObserver){
+    var last = bc.textContent;
+    var mo = new MutationObserver(function(){
+      var now = bc.textContent;
+      if (now && now !== last){
+        last = now;
+        ensureTrace(now.trim());
+      }
+    });
+    mo.observe(bc, {childList:true, characterData:true, subtree:true});
+  }
 })();
 </script>
 

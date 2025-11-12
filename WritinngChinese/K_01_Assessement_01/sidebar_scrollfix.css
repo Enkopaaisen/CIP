@@ -1,0 +1,21 @@
+
+/* sidebar_scrollfix.css */
+/* Make only the inner .charlist scroll; match sidebar height to card column via flex */
+.cardRow, #app { display: flex; align-items: stretch; }
+
+.sidebar {
+  flex: 0 0 260px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* remove outer scrollbar */
+}
+
+.charlist {
+  flex: 1 1 auto;
+  min-height: 0;    /* allows scroll area to shrink within sidebar */
+  overflow: auto;   /* only this gets a scrollbar */
+}
+
+/* Ensure card column stretches (names are typical; safe if missing) */
+.cardArea { flex: 1 1 auto; display: flex; }
+.maingrid { flex: 1 1 auto; }

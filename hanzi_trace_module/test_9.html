@@ -1,0 +1,2370 @@
+<!DOCTYPE html>
+<!-- saved from url=(0063)file:///C:/CIP/02_Chinese%20Writing/test_7.html?v=1762799364901 -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="preload" as="font" type="font/woff2" href="file:///C:/Users/leoyi/font/WenKai-Regular.woff2" crossorigin="">
+  <style>
+  @font-face {
+    font-family: 'WenKai';
+    src: url('../font/WenKai-Regular.woff2') format('woff2'),
+         url('../font/WenKai-Regular.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  </style>
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My characters</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
+  <style>
+  :root{--layout-w:min(1200px,98vw);--sidebar-w:220px; --box:140px; --mainbox:180px} /* mainbox 60% of old 300px */
+  html,body{height:100%}
+  body{margin:0;background:#f6f7fb;font-family:-apple-system,system-ui,"PingFang SC","Noto Sans CJK SC","KaiTi","Kaiti SC","STKaiti",serif;display:grid;place-items:center}
+  .layout{width:var(--layout-w);display:grid;grid-template-columns:var(--sidebar-w) 1fr;gap:14px;padding:14px}
+  .sidebar{background:#fff;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.06);padding:10px;overflow:auto;max-height:86vh}
+  .sidebar h3{margin:8px 8px 10px;font-size:16px;color:#444;display:flex;justify-content:space-between;align-items:center}
+  .charList{list-style:none;padding:0;margin:0}
+  .charList li{display:flex;align-items:center;gap:10px;padding:8px 10px;margin:6px 4px;border-radius:12px;cursor:pointer}
+  .charList li:hover{background:#f1f3f7}
+  .charList li.active{background:#e7eefc;box-shadow:inset 0 0 0 2px #d0dcff}
+  .charList .han{font-family:'WenKai','KaiTi','Kaiti SC','STKaiti',serif;font-size:28px;width:38px;text-align:center}
+  .charList .meta{display:flex;flex-direction:column;line-height:1.1}
+  .charList .meta .py{font-size:12px;color:#555}
+  .charList .meta .en{font-size:11px;color:#777}
+
+  .card{background:#fff;border-radius:24px;box-shadow:0 12px 40px rgba(0,0,0,.08);padding:20px;max-height:86vh;overflow:auto}
+  .top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}
+  .idx{font-size:14px;color:#666}
+
+  /* TRACE FIRST */
+  .traceWrap{margin-top:0}
+  .traceHead{display:flex;justify-content:space-between;align-items:center;margin:0 2px 10px}
+  .traceGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+  .traceCell{position:relative;background:#fafbff;border-radius:14px;padding:8px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
+  canvas.trace{width:var(--box);height:var(--box);touch-action:none;display:block;margin:0 auto}
+  .badge{position:absolute;top:6px;left:6px;font:12px/1.2 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:#555;background:#eef0f4;border-radius:8px;padding:2px 6px}
+  .traceClear{position:absolute;top:6px;right:6px;font-size:10px;line-height:1;border:0;border-radius:6px;padding:4px 6px;background:#eef0f4;cursor:pointer}
+
+  /* MAIN ROW: [buttons] [main char grids + text] [image] [save btn] */
+  .row{display:grid;grid-template-columns: var(--box) minmax(260px, 1fr) var(--mainbox) var(--box); gap:12px;align-items:start;justify-content:center;margin-top:14px}
+  .sideCol{display:flex;flex-direction:column;gap:8px;align-items:stretch; width: var(--box);}
+  .sideCol button{font-size:16px;padding:10px 12px;border:0;border-radius:12px;background:#eef0f4}
+
+  .mainCol{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:6px}
+  .mainGridRow{display:flex;gap:8px;align-items:center;justify-content:center}
+  .mainCell{position:relative;width:var(--mainbox);height:var(--mainbox)}
+  .mainCell canvas{width:100%;height:100%}
+  .hanzi{font-family:'WenKai','KaiTi','Kaiti SC','STKaiti',serif;font-size:clamp(64px,9vw,96px);line-height:1.05;margin:0;text-align:center;word-break:keep-all}
+  .pinyin{font-size:20px;font-weight:700;line-height:1.05;text-align:center;margin:0}
+  .meaning{color:#666;margin:2px 0 0;text-align:center;line-height:1.05}
+
+  .mediaCol{display:flex;flex-direction:column;gap:8px;align-items:center;width:var(--mainbox);}
+  .anim,.video{width:var(--mainbox);height:var(--mainbox);display:block;border-radius:16px;object-fit:cover;background:#f0f2f7;margin:0 auto}
+
+  .saveCol{display:flex;align-items:center;justify-content:center;width:var(--box);}
+  .saveCol button{height:auto;padding:8px 12px;font-size:14px;border:0;border-radius:10px;background:#dfe8ff}
+
+  .nav{display:flex;justify-content:space-between;padding:10px 2px 0}
+  .nav button{min-width:120px}
+
+  @media (max-width:960px){
+    :root{--sidebar-w:170px}
+    .row{display:grid;grid-template-columns: var(--box) minmax(260px, 1fr) var(--mainbox) var(--box); grid-auto-rows: auto; }
+    .mediaCol{display:flex;flex-direction:column;gap:8px;align-items:center;width:var(--mainbox);}
+    .saveCol{display:flex;align-items:center;justify-content:center;width:var(--box);}
+  }
+  @media (max-width:540px){
+    .layout{grid-template-columns:1fr}
+    .sidebar{max-height:220px}
+    .traceGrid{grid-template-columns:1fr}
+  }
+  </style>
+
+<style>
+/* Sidebar/list column scrolling */
+#charList {
+  overflow: auto;
+  /* fallback max-height; JS will refine on load */
+  max-height: calc(100vh - 220px);
+  padding-right: 6px;
+}
+/* Make list items' hanzi characters appear side-by-side */
+#charList .han {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  line-height: 1.1;
+}
+#charList .han .c {
+  display: inline-block;
+  font-size: 20px;
+  line-height: 1;
+}
+/* Keep each list row compact but readable */
+#charList li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 8px;
+}
+#charList li .meta { display: flex; gap: 8px; align-items: baseline; }
+</style>
+
+
+<style id="height-sync-override">
+/* Fix list & card heights to match numbers.html */
+.sidebar{max-height:86vh;overflow:auto}
+.card{max-height:86vh;overflow:auto}
+</style>
+
+
+<style id="list-inline-and-height">
+/* Make list items' hanzi characters appear side-by-side */
+#charList .han { display: inline-flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+#charList .han .c { display: inline-block; line-height: 1; }
+/* Ensure the list column can scroll when long; JS sets exact height */
+#charList { overflow: auto; }
+</style>
+
+
+<style id="trace-draw-css">
+canvas.trace { touch-action: none; cursor: crosshair; }
+</style>
+
+
+<style id="tracewrap-row-fix">
+  .traceWrap{ grid-column: 1 / -1; display:block; }
+</style>
+
+
+<style id="maingrid-frame-css">
+  #maingrid{
+    margin: 2px;                /* 2px margin inside the card */
+    border: 2px solid #AAB2C5;  /* thin, visible frame */
+    border-radius: 14px;
+    padding: 12px;              /* breathing room for contents */
+    background: #fff;           /* card background */
+  }
+</style>
+
+
+<style id="top-bottom-grid-css">
+  #topGrid, #bottomGrid{
+    border: 2px dashed #7a8aaa;
+    border-radius: 12px;
+    padding: 10px;
+    background: #fff;
+    margin-bottom: 12px;
+  }
+  #bottomGrid{ margin-bottom: 0; }
+  /* helper: placeholder text */
+  .placeholder {
+    min-height: 160px;
+    display:flex;align-items:center;justify-content:center;
+    color:#6b7280;
+    font:16px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  }
+</style>
+
+
+<style id="topgrid-3cols-css">
+  #topGrid{
+    display:grid;
+    grid-template-columns: 160px 220px 220px; /* menugrid | chargrid | tracegrid */
+    gap:14px;
+    align-items:start;
+  }
+  #menugrid, #chargrid, #tracegrid{ position: relative; 
+    border: 2px dashed #7a8aaa;
+    border-radius: 10px;
+    padding: 8px;
+    background:#fff;
+    min-height: 200px;
+  }
+  .placeholder {
+    min-height: 160px;
+    display:flex;align-items:center;justify-content:center;
+    color:#6b7280;
+    font:16px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  }
+</style>
+
+
+<style id="menugrid-buttons-css">
+  #menugrid .btnCol{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  #menugrid .btnCol button{
+    display:block;
+    width:100%;
+    padding:10px 12px;
+    font-size:16px;
+    border:1px solid #d7dbe6;
+    border-radius:10px;
+    background:#f6f7fb;
+    cursor:pointer;
+  }
+  #menugrid .btnCol button:hover{
+    background:#eef1f7;
+  }
+</style>
+
+
+
+<style id="chargrid-200-css">
+  #chargrid .charbox {
+    width: 160px;
+    height: 160px;
+    display: block;
+    margin: 0 auto;
+  }
+</style>
+
+
+
+<style id="chargrid-text-css-fixedheights">
+  #chargrid .charText{ margin-top:8px; display:flex; flex-direction:column; align-items:center; gap:6px; }
+  #chargrid .charText .py{
+    font: 700 22px/24px WenKai, KaiTi, "Kaiti SC", STKaiti, serif;
+    height:24px;
+  }
+  #chargrid .charText .en{
+    font: 16px/20px system-ui, -apple-system, Segoe UI, Roboto, Arial; color:#444;
+    height:20px;
+  }
+  .hiddenLine{ visibility:hidden; }
+  #chargrid #charImage{
+    width:160px; height:160px; object-fit:contain;
+    border:1px solid #cfcfcf; border-radius:8px; background:#fff;
+  }
+
+/* --- tracer slot pinned to top-left of tracegrid --- */
+#tracegrid { position: relative; }
+#trace-slot { position: absolute; top: 0; left: 0; margin: 0; }
+</style>
+<style>
+/* --- Save button inside tracegrid --- */
+#tracegrid { position: relative; }
+#trace-slot { position: absolute; top: 0; left: 0; margin: 0; width:160px; height:160px; }
+#saveTraceBtn{
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  z-index: 10;
+  padding: 6px 10px;
+  font: 600 12px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  border: 1px solid #d0d4dc;
+  border-radius: 6px;
+  background: #f5f7fb;
+  cursor: pointer;
+}
+#saveTraceBtn:hover{ background:#eef1f7; }
+
+/* ---- Small 120x120 MiZiGe boxes in bottom grid ---- */
+#bottomGrid .smallGridWrap{
+  display: grid;
+  grid-template-columns: repeat(5, 120px);
+  gap: 10px;
+  justify-content: start;
+  align-items: start;
+  margin-top: 10px;
+}
+#bottomGrid .smallCell{
+  position: relative;
+  background: #fafbff;
+  border-radius: 10px;
+  padding: 6px;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.06);
+}
+#bottomGrid .smallCell canvas.smallTrace{
+  width: 120px;
+  height: 120px;
+  display: block;
+  margin: 0;
+}
+#bottomGrid .smallCell .badge{
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  font: 12px/1.2 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+  color: #555;
+  background: #eef0f4;
+  border-radius: 8px;
+  padding: 2px 6px;
+}
+#bottomGrid .smallCell .smallClear{
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: none;
+  font-size: 12px;
+  line-height: 1;
+  border: 0;
+  border-radius: 6px;
+  padding: 2px 6px;
+  background: #eef0f4;
+  cursor: pointer;
+}
+</style>
+<style>
+/* --- Icon-only Save button inside tracegrid --- */
+#saveTraceBtn{
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 99999;            /* keep above tracing layer */
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid #cfd5e3;
+  border-radius: 8px;
+  background: #ffffffcc;
+  backdrop-filter: blur(2px);
+  box-shadow: 0 2px 6px rgba(0,0,0,.15);
+  cursor: pointer;
+}
+#saveTraceBtn svg { display:block; }
+#saveTraceBtn:hover{ background:#f3f6ff; border-color:#b8c2dd; }
+</style>
+</head>
+
+<body>
+
+<!-- Cache buster -->
+<script>
+(function(){
+  try {
+    if (!sessionStorage.getItem('cacheBusted')) {
+      sessionStorage.setItem('cacheBusted', String(Date.now()));
+      if ('serviceWorker' in navigator && navigator.serviceWorker.getRegistrations) {
+        navigator.serviceWorker.getRegistrations().then(function(regs){
+          regs.forEach(function(r){ r.unregister().catch(function(){}); });
+        }).catch(function(){});
+      }
+      if (window.caches && window.caches.keys) {
+        caches.keys().then(function(keys){
+          return Promise.all(keys.map(function(k){ return caches.delete(k); }));
+        }).catch(function(){});
+      }
+      try { localStorage.clear(); } catch(e){}
+      try { sessionStorage.removeItem('cacheBusted'); } catch(e){}
+      try {
+        var u = new URL(window.location.href);
+        if (!u.searchParams.has('v')) {
+          u.searchParams.set('v', Date.now().toString());
+          window.location.replace(u.toString());
+        }
+      } catch(e){}
+    }
+  } catch(e) {}
+})();
+function bustUrl(u){
+  if(!u) return u;
+  try {
+    var url = new URL(u, window.location.href);
+    if (!url.searchParams.has('v')) url.searchParams.set('v', String(Date.now()));
+    return url.toString();
+  } catch(e){
+    return u + ((u.indexOf('?')>=0)?'&':'?') + 'v=' + Date.now();
+  }
+}
+function bust(u){ return bustUrl(u); }
+</script>
+
+<div class="layout">
+  <aside class="sidebar">
+    <h3>My characters <a href="file:///C:/Users/leoyi/main.html" id="homeLink" style="font-size:12px;color:#3366cc;text-decoration:underline;">🏠 Home</a></h3>
+    <ul id="charList" class="charList" style="max-height: 753px; overflow: auto;"><li class="active"><div class="han" data-wrapped="1"><span class="c">日</span></div><div class="meta"><span class="py">rì</span><span class="en">sun</span></div></li><li class=""><div class="han" data-wrapped="1"><span class="c">月</span></div><div class="meta"><span class="py">yuè</span><span class="en">moon</span></div></li><li class=""><div class="han" data-wrapped="1"><span class="c">大</span></div><div class="meta"><span class="py">dà</span><span class="en">big</span></div></li><li class=""><div class="han" data-wrapped="1"><span class="c">小</span></div><div class="meta"><span class="py">xiǎo</span><span class="en">small</span></div></li><li class=""><div class="han" data-wrapped="1"><span class="c">爱</span></div><div class="meta"><span class="py">ài</span><span class="en">love</span></div></li><li class=""><div class="han" data-wrapped="1"><span class="c">人</span></div><div class="meta"><span class="py">rén</span><span class="en">person</span></div></li><li class=""><div class="han" data-wrapped="1"><span class="c">口</span></div><div class="meta"><span class="py">kǒu</span><span class="en">mouth</span></div></li><li class=""><div class="han" data-wrapped="1"><span class="c">我</span></div><div class="meta"><span class="py">wǒ</span><span class="en">I, me</span></div></li><li class=""><div class="han" data-wrapped="1"><span class="c">你</span></div><div class="meta"><span class="py">nǐ</span><span class="en">you</span></div></li><li class=""><div class="han" data-wrapped="1"><span class="c">手</span></div><div class="meta"><span class="py">shǒu</span><span class="en">hand</span></div></li></ul>
+  </aside>
+
+  <main class="card" id="cardRoot">
+  <div id="maingrid">
+
+    <div id="topGrid">
+
+      <div id="menugrid">
+
+      <div class="btnCol">
+        <button id="btnPlay" title="Play audio">▶ Play</button>
+        <button id="btnPinyin" title="Toggle Pinyin">拼 Pinyin</button>
+        <button id="btnEnglish" title="Toggle English">EN English</button>
+        <button id="btnSave" title="Save entire card">💾 Save</button>
+      </div>
+    
+</div>
+<div id="chargrid">
+
+      <canvas id="charGridCanvas" class="charbox" width="160" height="160"></canvas>
+      <div id="charTextWrap" class="charText">
+        <div id="charPinyin" class="py">rì</div>
+        <div id="charEnglish" class="en">sun</div>
+        <img id="charImage" alt="char image" width="160" height="160" src="file:///C:/CIP/02_Chinese%20Writing/media/ri4.gif">
+      </div>
+
+    
+</div>
+    <div id="tracegrid">
+  <div id="trace-slot" style="width:322px;height:367px">
+  <button id="saveTraceBtn" aria-label="Save trace to boxes" title="Save trace to boxes">
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+      <path d="M17 3H7a2 2 0 0 0-2 2v14l7-3 7 3V5a2 2 0 0 0-2-2zM9 7h6v2H9V7z"></path>
+    </svg>
+  </button>
+</div>
+</div>
+</div>
+
+<div id="bottomGrid">
+  <div class="smallGridWrap">
+    <div class="smallCell">
+      <span class="badge">1</span>
+      <button class="smallClear" data-target="sg1" title="Clear this box">×</button>
+      <canvas class="smallTrace" id="sg1" width="120" height="120" data-filled="0"></canvas>
+    </div>
+    <div class="smallCell">
+      <span class="badge">2</span>
+      <button class="smallClear" data-target="sg2" title="Clear this box">×</button>
+      <canvas class="smallTrace" id="sg2" width="120" height="120" data-filled="0"></canvas>
+    </div>
+    <div class="smallCell">
+      <span class="badge">3</span>
+      <button class="smallClear" data-target="sg3" title="Clear this box">×</button>
+      <canvas class="smallTrace" id="sg3" width="120" height="120" data-filled="0"></canvas>
+    </div>
+    <div class="smallCell">
+      <span class="badge">4</span>
+      <button class="smallClear" data-target="sg4" title="Clear this box">×</button>
+      <canvas class="smallTrace" id="sg4" width="120" height="120" data-filled="0"></canvas>
+    </div>
+    <div class="smallCell">
+      <span class="badge">5</span>
+      <button class="smallClear" data-target="sg5" title="Clear this box">×</button>
+      <canvas class="smallTrace" id="sg5" width="120" height="120" data-filled="0"></canvas>
+    </div>
+  </div>
+</div>
+
+    </div>
+      </main></div>
+      
+    
+      
+      
+      
+    
+
+    
+    
+    
+  
+
+
+  
+
+
+
+<script>
+window.DECK = []; // template stays empty; we'll fill later
+const DPR=Math.max(1,Math.min(3,window.devicePixelRatio||1));
+
+function drawGrid(ctx,w,h){
+  ctx.clearRect(0,0,w,h);
+  ctx.save();
+  ctx.strokeStyle='rgba(0,0,0,0.35)'; ctx.lineWidth=1*DPR; ctx.strokeRect(0.5*DPR,0.5*DPR,w-1*DPR,h-1*DPR);
+  ctx.beginPath(); ctx.moveTo(w/2,0); ctx.lineTo(w/2,h); ctx.moveTo(0,h/2); ctx.lineTo(w,h/2);
+  ctx.strokeStyle='rgba(0,0,0,0.18)'; ctx.lineWidth=1*DPR; ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(w,h); ctx.moveTo(w,0); ctx.lineTo(0,h);
+  ctx.strokeStyle='rgba(0,0,0,0.12)'; ctx.stroke(); ctx.restore();
+}
+
+function initMainGrids(showSecond){
+  const mg1=document.getElementById('mainGridCanvas1');
+  const mg2=document.getElementById('mainGridCanvas2');
+  const wrap2=document.getElementById('mainGrid2Wrap');
+  if(mg1){
+    const cssW=mg1.clientWidth||180, cssH=mg1.clientHeight||180;
+    mg1.width=Math.floor(cssW*DPR); mg1.height=Math.floor(cssH*DPR);
+    drawGrid(mg1.getContext('2d'), mg1.width, mg1.height);
+  }
+  if(mg2){
+    if(showSecond){ wrap2.style.display='block'; } else { wrap2.style.display='none'; }
+    const cssW=mg2.clientWidth||180, cssH=mg2.clientHeight||180;
+    mg2.width=Math.floor(cssW*DPR); mg2.height=Math.floor(cssH*DPR);
+    drawGrid(mg2.getContext('2d'), mg2.width, mg2.height);
+  }
+}
+
+function initTraceGrids(){
+  Array.from(document.querySelectorAll('canvas.trace')).forEach(cnv=>{
+    const cssW=cnv.clientWidth, cssH=cnv.clientHeight;
+    cnv.width=Math.floor(cssW*DPR); cnv.height=Math.floor(cssH*DPR);
+    drawGrid(cnv.getContext('2d'), cnv.width, cnv.height);
+  });
+}
+
+function initAll(){
+  initMainGrids(false); // start with single main grid
+  initTraceGrids();
+}
+
+document.addEventListener('DOMContentLoaded', initAll);
+
+document.getElementById('clearAllBtn').addEventListener('click', initTraceGrids);
+document.querySelectorAll('.traceClear').forEach(btn=>{
+  btn.addEventListener('click',(e)=>{
+    e.preventDefault(); e.stopPropagation();
+    const i=parseInt(btn.getAttribute('data-i'),10)||0;
+    const cnv=document.querySelectorAll('canvas.trace')[i];
+    if(!cnv) return;
+    drawGrid(cnv.getContext('2d'), cnv.width, cnv.height);
+  });
+});
+
+// Stubs: later we'll toggle initMainGrids(true) if multi-char like '妈妈'
+function setMultiChar(enabled){
+  initMainGrids(!!enabled);
+}
+
+// Media + buttons (stubs)
+function media(path){
+  const img=document.getElementById('animImg');
+  const vid=document.getElementById('animVid');
+  if(img) img.style.display='none';
+  if(vid){ vid.style.display='none'; vid.pause && vid.pause(); }
+}
+document.getElementById('playBtn').addEventListener('click',()=>{
+  const a=document.getElementById('audio');
+  if(!a) return;
+  a.play && a.play().catch(()=>{});
+});
+document.getElementById('togglePinyinBtn').addEventListener('click',()=>{
+  const el=document.getElementById('pinyin'); if(!el) return;
+  el.style.visibility=(el.style.visibility==='hidden')?'visible':'hidden';
+});
+document.getElementById('toggleMeaningBtn').addEventListener('click',()=>{
+  const el=document.getElementById('meaning'); if(!el) return;
+  el.style.visibility=(el.style.visibility==='hidden')?'visible':'hidden';
+});
+</script>
+
+<script>
+// --- Robust tracing handlers (pointer/mouse/touch) ---
+(function(){
+  const DPR=Math.max(1,Math.min(3,window.devicePixelRatio||1));
+  function attachTrace(cnv){
+    const ctx=cnv.getContext('2d');
+    let drawing=false,last=null;
+    function xy(ev){const r=cnv.getBoundingClientRect();let x,y;
+      if(ev.touches&&ev.touches[0]){x=(ev.touches[0].clientX-r.left)*DPR;y=(ev.touches[0].clientY-r.top)*DPR;}
+      else if(ev.changedTouches&&ev.changedTouches[0]){x=(ev.changedTouches[0].clientX-r.left)*DPR;y=(ev.changedTouches[0].clientY-r.top)*DPR;}
+      else{x=(ev.clientX-r.left)*DPR;y=(ev.clientY-r.top)*DPR;} return{x,y};
+    }
+    function start(e){e.preventDefault();drawing=true;last=xy(e);}
+    function move(e){if(!drawing)return;e.preventDefault();const p=xy(e);ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.strokeStyle='rgba(220,30,30,1)';ctx.lineWidth=6*DPR;ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke();last=p;}
+    function end(e){if(!drawing)return;e.preventDefault();drawing=false;}
+    cnv.addEventListener('pointerdown',start); cnv.addEventListener('pointermove',move); cnv.addEventListener('pointerup',end); cnv.addEventListener('pointerleave',end);
+    cnv.addEventListener('touchstart',start,{passive:false}); cnv.addEventListener('touchmove',move,{passive:false}); cnv.addEventListener('touchend',end,{passive:false});
+    cnv.addEventListener('mousedown',start); window.addEventListener('mousemove',(e)=>{ if(drawing) move(e); }); window.addEventListener('mouseup',end);
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    Array.from(document.querySelectorAll('canvas.trace')).forEach(attachTrace);
+  });
+})();
+
+// --- Save Image: compose main grid(s) + media + pinyin + meaning into PNG ---
+(function(){
+  function downloadBlob(blob, filename){
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+  }
+  
+
+function saveCard(){
+  const DPR = Math.max(1, Math.min(3, window.devicePixelRatio||1));
+  const mg1 = document.getElementById('mainGridCanvas1');
+  const mg2 = document.getElementById('mainGridCanvas2');
+  const wrap2 = document.getElementById('mainGrid2Wrap');
+  const traces = Array.from(document.querySelectorAll('canvas.trace'));
+  const P = document.getElementById('pinyin');
+  const M = document.getElementById('meaning');
+  const hasSecond = !!(wrap2 && wrap2.style.display !== 'none' && mg2);
+  const gW = mg1 ? mg1.width : 0, gH = mg1 ? mg1.height : 0;
+  const tW = traces[0] ? traces[0].width : 0, tH = traces[0] ? traces[0].height : 0;
+  const pad = 24*DPR, gap = 16*DPR, rowGap = 20*DPR;
+  const traceCols = 5, traceRows = 2;
+  const traceGridW = traceCols * tW + (traceCols - 1) * gap;
+  const traceGridH = traceRows * tH + (traceRows - 1) * gap;
+  const mainBlockW = (hasSecond ? (gW + gap + gW) : gW);
+  const width = pad*2 + Math.max(traceGridW, mainBlockW);
+  const mainY = pad + traceGridH + rowGap;
+  const textH = 64*DPR;
+  const timeBand = 34*DPR;
+  const height = pad*2 + traceGridH + rowGap + gH + textH + timeBand;
+
+  const cvs = document.createElement('canvas');
+  cvs.width = Math.max(width, 1);
+  cvs.height = Math.max(height, 1);
+  const ctx = cvs.getContext('2d');
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0,0,cvs.width,cvs.height);
+
+  // tracing
+  if (traces.length >= 10){
+    for (let r=0; r<traceRows; r++){
+      for (let c=0; c<traceCols; c++){
+        const idx = r*traceCols + c;
+        const src = traces[idx];
+        if (!src) continue;
+        const x = pad + c*(tW + gap);
+        const y = pad + r*(tH + gap);
+        ctx.drawImage(src, x, y);
+      }
+    }
+  } else {
+    traces.forEach((cnv,i)=>{
+      const r = Math.floor(i/traceCols), c = i%traceCols;
+      const x = pad + c*(tW + gap);
+      const y = pad + r*(tH + gap);
+      ctx.drawImage(cnv, x, y);
+    });
+  }
+
+  // main grids centered
+  if (mg1){
+    let totalW = hasSecond ? (gW + gap + gW) : gW;
+    let x = Math.floor((cvs.width - totalW)/2);
+    ctx.drawImage(mg1, x, mainY);
+    if (hasSecond && mg2){
+      ctx.drawImage(mg2, x + gW + gap, mainY);
+    }
+  }
+
+  // text
+  const centerX = Math.floor(cvs.width/2);
+  ctx.fillStyle = '#000';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  let pyText="", enText="";
+  try { const deck=window.DECK||[]; const cur=deck[(window._IDX|0)]||{}; pyText=cur.pinyin||""; enText=cur.meaning||""; } catch(e){}
+  if (typeof toneNumberToMarks==='function'){ pyText = toneNumberToMarks(pyText); }
+  ctx.font = (22*DPR)+'px WenKai, KaiTi, "Kaiti SC", STKaiti, serif';
+  ctx.fillText(pyText || '', centerX, mainY + gH + gap*0.5);
+  ctx.font = (18*DPR)+'px system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial';
+  ctx.fillText(enText || '', centerX, mainY + gH + gap*0.5 + 28*DPR);
+
+  // timestamp
+  const now = new Date();
+  const ts = String(now.getFullYear()).padStart(4,'0')
+           + String(now.getMonth()+1).padStart(2,'0')
+           + String(now.getDate()).padStart(2,'0')
+           + '-'
+           + String(now.getHours()).padStart(2,'0')
+           + String(now.getMinutes()).padStart(2,'0')
+           + String(now.getSeconds()).padStart(2,'0');
+  ctx.fillStyle = '#222';
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'bottom';
+  ctx.font = (16*DPR)+'px system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial';
+  ctx.fillText(ts, cvs.width - 10*DPR, cvs.height - 8*DPR);
+
+  // filename
+  let stem = 'card';
+  try {
+    const deck = window.DECK || [];
+    const cur = deck[(window._IDX|0)] || {};
+    if (cur.pinyin && typeof cur.pinyin === 'string'){ stem = cur.pinyin; }
+    else if (cur.hanzi && typeof cur.hanzi === 'string'){ stem = cur.hanzi; }
+    stem = stem.replace(/[^\w\-]+/g,'_').slice(0,60);
+  } catch(e){}
+  const filename = stem + '_' + ts + '.png';
+
+  // open tab + download
+  cvs.toBlob((blob)=>{
+    if (!blob) return;
+    const url = URL.createObjectURL(blob);
+    window.open(url, "_blank");
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 60000);
+  }, 'image/png');
+}
+}
+  } else {
+    traces.forEach((cnv,i)=>{
+      const r = Math.floor(i/traceCols), c = i%traceCols;
+      const x = pad + c*(tW + gap);
+      const y = pad + r*(tH + gap);
+      ctx.drawImage(cnv, x, y);
+    });
+  }
+
+  if (mg1){
+    let totalW = hasSecond ? (gW + gap + gW) : gW;
+    let x = Math.floor((cvs.width - totalW)/2);
+    ctx.drawImage(mg1, x, mainY);
+    if (hasSecond && mg2){
+      ctx.drawImage(mg2, x + gW + gap, mainY);
+    }
+  }
+
+  const now = new Date();
+  const ts = String(now.getFullYear()).padStart(4,'0')
+           + String(now.getMonth()+1).padStart(2,'0')
+           + String(now.getDate()).padStart(2,'0')
+           + '-'
+           + String(now.getHours()).padStart(2,'0')
+           + String(now.getMinutes()).padStart(2,'0')
+           + String(now.getSeconds()).padStart(2,'0');
+  ctx.fillStyle = '#222';
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'bottom';
+  ctx.font = (16*DPR)+'px system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial';
+  ctx.fillText(ts, cvs.width - 10*DPR, cvs.height - 8*DPR);
+
+  let fileStem = 'card';
+  try {
+    const deck = window.DECK || [];
+    const cur = deck[(window._IDX|0)] || {};
+    if (cur.pinyin && typeof cur.pinyin === 'string'){ fileStem = cur.pinyin; }
+    else if (cur.hanzi && typeof cur.hanzi === 'string'){ fileStem = cur.hanzi; }
+    fileStem = fileStem.replace(/[^\w\-]+/g,'_').slice(0,60);
+  } catch(e){}
+
+  const filename = fileStem + '_' + ts + '.png';
+
+  cvs.toBlob((blob)=>{
+    if (!blob) return;
+    const url = URL.createObjectURL(blob);
+    window.open(url, "_blank");
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 60000);
+  }, 'image/png');
+}
+if (two && mg2){ ctx.drawImage(mg2, x, y, gW, gH); x += gW + gap; }
+    // Draw image
+    if (img && img.complete && img.naturalWidth){
+      ctx.drawImage(img, x, y, imgW, imgH);
+    } else {
+      // gray placeholder same size as main box
+      ctx.fillStyle = '#f0f2f7'; ctx.fillRect(x, y, imgW, imgH);
+      ctx.fillStyle = '#99a'; ctx.font = (16*DPR)+'px system-ui'; ctx.fillText('media', x+10*DPR, y+24*DPR);
+    }
+    // Draw text lines under grids
+    const centerX = pad + ((two? gW*2 + gap : gW))/2;
+    ctx.fillStyle = '#000';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    if (py){ ctx.font = (22*DPR)+'px WenKai, KaiTi, "Kaiti SC", STKaiti, serif'; ctx.fillText(py.textContent||'', centerX, pad + Math.max(gH,imgH) + gap*0.5); }
+    if (en){ ctx.font = (18*DPR)+'px system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial'; ctx.fillText(en.textContent||'', centerX, pad + Math.max(gH,imgH) + gap*0.5 + 28*DPR); }
+
+    cvs.toBlob((blob)=>{ if (blob) { const url = URL.createObjectURL(blob); window.open(url, "_blank"); setTimeout(()=>URL.revokeObjectURL(url), 60000); } }, "image/png");
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    const btn = document.getElementById('saveBtn');
+    if (btn){ btn.addEventListener('click', saveCard); }
+  });
+})();
+</script>
+
+<script>
+
+// Convert numbered pinyin (e.g., "ri4", "ma1", "mama1") to tone-marked pinyin ("rì","mā","māma")
+function toneNumberToMarks(py){
+  if(!py) return py;
+  // Split into syllables (digits 1-5 mark tones; tone 5 = neutral)
+  const vowels = 'aeoiuvü'; // include 'ü' and 'v' alias
+  const toneMap = {
+    a:['ā','á','ǎ','à'],
+    e:['ē','é','ě','è'],
+    i:['ī','í','ǐ','ì'],
+    o:['ō','ó','ǒ','ò'],
+    u:['ū','ú','ǔ','ù'],
+    'ü':['ǖ','ǘ','ǚ','ǜ'],
+    v:['ǖ','ǘ','ǚ','ǜ'] // treat v as ü
+  };
+  // prefer a/e/o, else the last vowel for i/u/ü
+  function applyTone(syl, tone){
+    if (tone < 1 || tone > 4) return syl; // neutral or invalid
+    const lower = syl.toLowerCase();
+    // pick index for marking
+    let idx = -1;
+    const order = ['a','e','o'];
+    for (let p of order){
+      const k = lower.indexOf(p);
+      if (k !== -1){ idx = k; break; }
+    }
+    if (idx === -1){
+      // mark the last i/u/ü
+      for (let i = lower.length - 1; i >= 0; i--){
+        const ch = lower[i];
+        if ('iuüv'.includes(ch)){ idx = i; break; }
+      }
+    }
+    if (idx === -1) return syl; // no vowel to mark
+    const ch = lower[idx];
+    const map = toneMap[ch];
+    if (!map) return syl;
+    const marked = map[tone-1];
+    // rebuild preserving original case position
+    return syl.slice(0,idx) + marked + syl.slice(idx+1);
+  }
+  // parse syllables by digits 1-5; allow text like "mama1" -> "māma"
+  let out = '';
+  let buf = '';
+  for (let i=0;i<py.length;i++){
+    const c = py[i];
+    if (/[1-5]/.test(c)){
+      const tone = parseInt(c,10);
+      out += applyTone(buf, tone);
+      buf = '';
+    } else {
+      buf += c;
+    }
+  }
+  // any remaining buffer (neutral)
+  out += buf;
+  return out;
+}
+
+</script>
+
+<script>
+window.DECK = [];
+
+const $ = (sel)=>document.querySelector(sel);
+const $$ = (sel)=>Array.from(document.querySelectorAll(sel));
+
+function redrawGrid(cnv){
+  const ctx = cnv.getContext('2d');
+  const w=cnv.width, h=cnv.height;
+  ctx.clearRect(0,0,w,h);
+  ctx.save();
+  ctx.strokeStyle='rgba(0,0,0,0.35)'; ctx.lineWidth=1; ctx.strokeRect(0.5,0.5,w-1,h-1);
+  ctx.beginPath(); ctx.moveTo(w/2,0); ctx.lineTo(w/2,h); ctx.moveTo(0,h/2); ctx.lineTo(w,h/2);
+  ctx.strokeStyle='rgba(0,0,0,0.18)'; ctx.lineWidth=1; ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(w,h); ctx.moveTo(w,0); ctx.lineTo(0,h);
+  ctx.strokeStyle='rgba(0,0,0,0.12)'; ctx.stroke(); ctx.restore();
+}
+
+function drawGuide(ctx,w,h,ch,tone){
+  if(!ch) return;
+  ctx.save();
+  ctx.globalAlpha = (tone==='black')?0.95:0.22;
+  ctx.fillStyle='#000';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  var f=Math.floor(h*0.72);
+  ctx.font = f+'px WenKai, KaiTi, "Kaiti SC", STKaiti, serif';
+  ctx.fillText(ch, w/2, h/2);
+  ctx.restore();
+}
+
+function getGuideForIndex(displayWord, index){
+  const chars = Array.from(displayWord||"");
+  const L = chars.length;
+  const n = (index|0) + 1;
+  if (L <= 0) return { ch:"", tone:null };
+  if (L === 1){
+    if (n === 1 || n === 6) return { ch: chars[0], tone:'black' };
+    if (n >= 2 && n <= 5)   return { ch: chars[0], tone:'gray'  };
+    return { ch:"", tone:null };
+  }
+  const c0 = chars[0], c1 = (L >= 2 ? chars[1] : chars[0]);
+  if (n === 1) return { ch:c0, tone:'black' };
+  if (n === 2) return { ch:c1, tone:'black' };
+  if (n === 3) return { ch:c0, tone:'gray'  };
+  if (n === 4) return { ch:c1, tone:'gray'  };
+  if (n === 5) return { ch:"",  tone:null   };
+  if (n === 6) return { ch:c0, tone:'gray'  };
+  if (n === 7) return { ch:c1, tone:'gray'  };
+  return { ch:"", tone:null };
+}
+
+function setupTracingGuides(word){
+  $$('.trace').forEach((cnv,i)=>{
+    redrawGrid(cnv);
+    const g = getGuideForIndex(word, i);
+    if (g && g.tone) drawGuide(cnv.getContext('2d'), cnv.width, cnv.height, g.ch, g.tone);
+  });
+}
+
+);
+}
+
+function show(i){
+  const deck = window.DECK||[];
+  if (!deck.length) return;
+  if (i<0) i=deck.length-1;
+  if (i>=deck.length) i=0;
+  window._IDX = i;
+
+  const it = deck[i];
+  const mg1 = $("#mainGridCanvas1");
+  const mg2 = $("#mainGridCanvas2");
+  const wrap2 = $("#mainGrid2Wrap");
+  if (it.hanzi && it.hanzi.length > 1){
+    wrap2 && (wrap2.style.display='block');
+  } else {
+    wrap2 && (wrap2.style.display='none');
+  }
+  if (mg1){ redrawGrid(mg1); const c0=(it.hanzi||'')[0]; if (c0) drawGuide(mg1.getContext('2d'), mg1.width, mg1.height, c0, 'black'); }
+  if (mg2 && wrap2 && wrap2.style.display!=='none'){ redrawGrid(mg2); const c1=(it.hanzi||'')[1]; if (c1) drawGuide(mg2.getContext('2d'), mg2.width, mg2.height, c1, 'black'); }
+
+  const P=$("#pinyin"), M=$("#meaning"); if (P) P.textContent=toneNumberToMarks(it.pinyin||""); if (M) M.textContent=it.meaning||"";
+  const idxEl=$("#idx"); if (idxEl) idxEl.textContent=(i+1)+" / "+deck.length;
+
+  const img=$("#animImg"), vid=$("#animVid");
+  if (img) img.style.display='none';
+  if (vid){ vid.style.display='none'; vid.pause && vid.pause(); }
+  const mediaPath = it.media;
+  if (mediaPath){
+    const ext = (mediaPath.split('.').pop()||'').toLowerCase();
+    if (['mp4','mov','webm'].includes(ext) && vid){
+      vid.src = (typeof bust==='function'? bust(mediaPath):mediaPath);
+      vid.style.display='block'; vid.play && vid.play().catch(()=>{});
+    } else if (img){
+      img.src = (typeof bust==='function'? bust(mediaPath):mediaPath);
+      img.style.display='block';
+    }
+  }
+
+  setupTracingGuides(it.hanzi||"");
+  renderSidebar(i);
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  if ((window.DECK||[]).length){ renderSidebar(0); show(0); }
+  const nb = document.getElementById('nextBtn'); if (nb) nb.addEventListener('click', ()=>show((window._IDX|0)+1));
+  const pb = document.getElementById('prevBtn'); if (pb) pb.addEventListener('click', ()=>show((window._IDX|0)-1));
+  const clr = document.getElementById('clearAllBtn'); if (clr) clr.addEventListener('click', ()=>{
+    const cur = (window.DECK[window._IDX|0]||{}).hanzi || "";
+    setupTracingGuides(cur);
+  });
+});
+</script>
+
+
+<script>
+(function(){
+  function drawGuideChar(cnv, word, index){
+    const g = (typeof getGuideForIndex === 'function') ? getGuideForIndex(word, index) : null;
+    const ctx = cnv.getContext('2d'); const w=cnv.width, h=cnv.height;
+    if (typeof redrawGrid === 'function') redrawGrid(cnv);
+    if (!g || !g.tone || !g.ch) return;
+    ctx.save();
+    ctx.globalAlpha = (g.tone==='black')?0.95:0.22;
+    ctx.fillStyle = '#000';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const f = Math.floor(h*0.72);
+    ctx.font = f+'px WenKai, KaiTi, "Kaiti SC", STKaiti, serif';
+    ctx.fillText(g.ch, w/2, h/2);
+    ctx.restore();
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    document.querySelectorAll('.traceClear').forEach((btn)=>{
+      btn.addEventListener('click', function(e){
+        e.preventDefault(); e.stopPropagation();
+        const i = parseInt(btn.getAttribute('data-i'),10) || 0;
+        const canvases = document.querySelectorAll('canvas.trace');
+        const cnv = canvases[i]; if (!cnv) return;
+        let word = "";
+        try {
+          const deck = window.DECK || [];
+          const cur = deck[(window._IDX|0)] || {};
+          word = cur.hanzi || "";
+        } catch(e){}
+        drawGuideChar(cnv, word, i);
+      });
+    });
+  });
+})();
+</script>
+
+
+<script>
+(function(){
+  // Safe tone helper fallback
+  function _tone(py){
+    try { return (typeof toneNumberToMarks==='function') ? toneNumberToMarks(py||"") : (py||""); }
+    catch(e){ return py||""; }
+  }
+
+  function saveCard_override(){
+    const DPR = Math.max(1, Math.min(3, window.devicePixelRatio||1));
+    const mg1 = document.getElementById('mainGridCanvas1');
+    const mg2 = document.getElementById('mainGridCanvas2');
+    const wrap2 = document.getElementById('mainGrid2Wrap');
+    const traces = Array.from(document.querySelectorAll('canvas.trace'));
+    const hasSecond = !!(wrap2 && wrap2.style.display !== 'none' && mg2);
+
+    // Pull py/en directly from DECK item
+    let pyText = "", enText = "";
+    try {
+      const deck = window.DECK || [];
+      const cur = deck[(window._IDX|0)] || {};
+      pyText = cur.pinyin || "";
+      enText = cur.meaning || "";
+    } catch(e){}
+    pyText = _tone(pyText);
+
+    const gW = mg1 ? mg1.width : 0, gH = mg1 ? mg1.height : 0;
+    const tW = traces[0] ? traces[0].width : 0, tH = traces[0] ? traces[0].height : 0;
+
+    const pad = 24*DPR, gap = 16*DPR, rowGap = 20*DPR;
+    const traceCols = 5, traceRows = 2;
+    const traceGridW = traceCols * tW + (traceCols - 1) * gap;
+    const traceGridH = traceRows * tH + (traceRows - 1) * gap;
+    const mainBlockW = (hasSecond ? (gW + gap + gW) : gW);
+    const width = pad*2 + Math.max(traceGridW, mainBlockW);
+
+    const textH = 64*DPR;
+    const timeBand = 34*DPR;
+    const mainY = pad + traceGridH + rowGap;
+    const height = pad*2 + traceGridH + rowGap + gH + textH + timeBand;
+
+    const cvs = document.createElement('canvas');
+    cvs.width = Math.max(width, 1);
+    cvs.height = Math.max(height, 1);
+    const ctx = cvs.getContext('2d');
+
+    // white background
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0,0,cvs.width,cvs.height);
+
+    // Draw tracing (10 boxes)
+    for (let r=0; r<traceRows; r++){
+      for (let c=0; c<traceCols; c++){
+        const idx = r*traceCols + c;
+        const src = traces[idx];
+        if (!src) continue;
+        const x = pad + c*(tW + gap);
+        const y = pad + r*(tH + gap);
+        ctx.drawImage(src, x, y);
+      }
+    }
+
+    // Draw main grid(s) centered
+    if (mg1){
+      const totalW = hasSecond ? (gW + gap + gW) : gW;
+      const startX = Math.floor((cvs.width - totalW)/2);
+      ctx.drawImage(mg1, startX, mainY);
+      if (hasSecond && mg2){
+        ctx.drawImage(mg2, startX + gW + gap, mainY);
+      }
+    }
+
+    // Draw Pinyin + English under main grids
+    const centerX = Math.floor(cvs.width/2);
+    ctx.fillStyle = '#000';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.font = (22*DPR)+'px WenKai, KaiTi, "Kaiti SC", STKaiti, serif';
+    ctx.fillText(pyText || '', centerX, mainY + gH + gap*0.5);
+    ctx.font = (18*DPR)+'px system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial';
+    ctx.fillText(enText || '', centerX, mainY + gH + gap*0.5 + 28*DPR);
+
+    // Timestamp
+    const now = new Date();
+    const ts = String(now.getFullYear()).padStart(4,'0')
+             + String(now.getMonth()+1).padStart(2,'0')
+             + String(now.getDate()).padStart(2,'0')
+             + '-'
+             + String(now.getHours()).padStart(2,'0')
+             + String(now.getMinutes()).padStart(2,'0')
+             + String(now.getSeconds()).padStart(2,'0');
+    ctx.fillStyle = '#222';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'bottom';
+    ctx.font = (16*DPR)+'px system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial';
+    ctx.fillText(ts, cvs.width - 10*DPR, cvs.height - 8*DPR);
+
+    // Filename stem from numbered pinyin/hanzi
+    let stem = 'card';
+    try {
+      const deck = window.DECK || [];
+      const cur = deck[(window._IDX|0)] || {};
+      stem = (cur.pinyin || cur.hanzi || 'card').toString().replace(/[^\w\-]+/g,'_').slice(0,60);
+    } catch(e){}
+    const filename = stem + '_' + ts + '.png';
+
+    // Open in a new tab and auto-download
+    cvs.toBlob((blob)=>{
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      window.open(url, "_blank");
+      const a = document.createElement('a');
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url), 60000);
+    }, 'image/png');
+  }
+
+  // Install override and ensure the button calls this version
+  window.saveCard = saveCard_override;
+  document.addEventListener('DOMContentLoaded', function(){
+    const btn = document.getElementById('saveBtn');
+    if (btn){
+      btn.addEventListener('click', saveCard_override);
+    }
+  });
+})();
+</script>
+
+
+<script>
+window.DECK = [
+  {
+    "hanzi": "一",
+    "pinyin": "yi1",
+    "meaning": "one",
+    "audio": "audio/yi1.wav",
+    "media": "media/yi1.gif"
+  },
+  {
+    "hanzi": "二",
+    "pinyin": "er4",
+    "meaning": "two",
+    "audio": "audio/er4.wav",
+    "media": "media/er4.gif"
+  },
+  {
+    "hanzi": "三",
+    "pinyin": "san1",
+    "meaning": "three",
+    "audio": "audio/san1.wav",
+    "media": "media/san1.gif"
+  },
+  {
+    "hanzi": "四",
+    "pinyin": "si4",
+    "meaning": "four",
+    "audio": "audio/si4.wav",
+    "media": "media/si4.gif"
+  },
+  {
+    "hanzi": "五",
+    "pinyin": "wu3",
+    "meaning": "five",
+    "audio": "audio/wu3.wav",
+    "media": "media/wu3.gif"
+  },
+  {
+    "hanzi": "六",
+    "pinyin": "liu4",
+    "meaning": "six",
+    "audio": "audio/liu4.wav",
+    "media": "media/liu4.gif"
+  },
+  {
+    "hanzi": "七",
+    "pinyin": "qi1",
+    "meaning": "seven",
+    "audio": "audio/qi1.wav",
+    "media": "media/qi1.gif"
+  },
+  {
+    "hanzi": "八",
+    "pinyin": "ba1",
+    "meaning": "eight",
+    "audio": "audio/ba1.wav",
+    "media": "media/ba1.gif"
+  },
+  {
+    "hanzi": "九",
+    "pinyin": "jiu3",
+    "meaning": "nine",
+    "audio": "audio/jiu3.wav",
+    "media": "media/jiu3.gif"
+  },
+  {
+    "hanzi": "十",
+    "pinyin": "shi2",
+    "meaning": "ten",
+    "audio": "audio/shi2.wav",
+    "media": "media/shi2.gif"
+  },
+  {
+    "hanzi": "日",
+    "pinyin": "ri4",
+    "meaning": "",
+    "audio": "audio/ri4.wav",
+    "media": "media/ri4.gif"
+  },
+  {
+    "hanzi": "月",
+    "pinyin": "yue4",
+    "meaning": "",
+    "audio": "audio/yue4.wav",
+    "media": "media/yue4.gif"
+  },
+  {
+    "hanzi": "大",
+    "pinyin": "da4",
+    "meaning": "",
+    "audio": "audio/da4.wav",
+    "media": "media/da4.gif"
+  },
+  {
+    "hanzi": "小",
+    "pinyin": "xiao3",
+    "meaning": "",
+    "audio": "audio/xiao3.wav",
+    "media": "media/xiao3.gif"
+  },
+  {
+    "hanzi": "爱",
+    "pinyin": "ai4",
+    "meaning": "",
+    "audio": "audio/ai4.wav",
+    "media": "media/ai4.gif"
+  },
+  {
+    "hanzi": "个",
+    "pinyin": "ge4",
+    "meaning": "",
+    "audio": "audio/ge4.wav",
+    "media": "media/ge4.gif"
+  },
+  {
+    "hanzi": "人",
+    "pinyin": "ren2",
+    "meaning": "",
+    "audio": "audio/ren2.wav",
+    "media": "media/ren2.gif"
+  },
+  {
+    "hanzi": "口",
+    "pinyin": "kou3",
+    "meaning": "",
+    "audio": "audio/kou3.wav",
+    "media": "media/kou3.gif"
+  },
+  {
+    "hanzi": "我",
+    "pinyin": "wo3",
+    "meaning": "",
+    "audio": "audio/wo3.wav",
+    "media": "media/wo3.gif"
+  },
+  {
+    "hanzi": "天",
+    "pinyin": "tian1",
+    "meaning": "",
+    "audio": "audio/tian1.wav",
+    "media": "media/tian1kong1.gif"
+  },
+  {
+    "hanzi": "你",
+    "pinyin": "ni3",
+    "meaning": "",
+    "audio": "audio/ni3.wav",
+    "media": "media/ni3.gif"
+  },
+  {
+    "hanzi": "爸",
+    "pinyin": "ba4",
+    "meaning": "",
+    "audio": "audio/ba4.wav",
+    "media": "media/baba4.gif"
+  },
+  {
+    "hanzi": "手",
+    "pinyin": "shou3",
+    "meaning": "",
+    "audio": "audio/shou3.wav",
+    "media": "media/shou3.gif"
+  },
+  {
+    "hanzi": "飞",
+    "pinyin": "fei1",
+    "meaning": "",
+    "audio": "audio/fei1.wav",
+    "media": "media/fei1.gif"
+  },
+  {
+    "hanzi": "妈",
+    "pinyin": "ma1",
+    "meaning": "",
+    "audio": "audio/ma1.wav",
+    "media": "media/mama1.gif"
+  }
+];
+(function(){
+  function init(){ try{ if (typeof renderSidebar==='function' && typeof show==='function') { renderSidebar(0); show(0); } }catch(e){} }
+  if (document.readyState==='loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
+
+
+<script>
+(function(){
+  const $ = (s)=>document.querySelector(s);
+  function renderSidebar(idx){
+    const ul = $("#charList"); if (!ul) return;
+    ul.innerHTML = "";
+    const deck = (window.DECK||[]);
+    deck.forEach((it,i)=>{
+      const li = document.createElement('li');
+      li.className = (i===idx)?'active':'';
+
+      // Build hanzi spans side-by-side
+      const hanWrap = document.createElement('div');
+      hanWrap.className = 'han';
+      const chars = Array.from(it.hanzi||"");
+      if (chars.length){
+        chars.forEach(ch=>{
+          const sp = document.createElement('span');
+          sp.className = 'c';
+          sp.textContent = ch;
+          hanWrap.appendChild(sp);
+        });
+      } else {
+        hanWrap.textContent = it.hanzi || "";
+      }
+
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+      const py = document.createElement('span');
+      py.className = 'py';
+      try {
+        py.textContent = (typeof toneNumberToMarks==='function') ? toneNumberToMarks(it.pinyin||"") : (it.pinyin||"");
+      } catch(e){ py.textContent = it.pinyin||""; }
+      const en = document.createElement('span');
+      en.className = 'en';
+      en.textContent = it.meaning || "";
+
+      meta.appendChild(py); meta.appendChild(en);
+      li.appendChild(hanWrap); li.appendChild(meta);
+      li.addEventListener('click', ()=>{ if (typeof show==='function') show(i); });
+
+      ul.appendChild(li);
+    });
+  }
+  window.renderSidebar = renderSidebar;
+
+  // Adjust list height to roughly match card/main area
+  function fitListHeight(){
+    const ul = $("#charList"); if (!ul) return;
+    let avail = window.innerHeight - 220; // header/buttons rough offset
+    // Try to sync to main content area if larger
+    const card = document.querySelector('#mainGridCanvas1')?.parentElement || document.querySelector('.mainCol');
+    if (card && card.getBoundingClientRect){
+      const h = card.getBoundingClientRect().height;
+      if (!isNaN(h) && h>0) avail = Math.max(300, Math.min(avail, h));
+    }
+    ul.style.maxHeight = Math.floor(avail) + "px";
+  }
+  window.addEventListener('resize', fitListHeight);
+  document.addEventListener('DOMContentLoaded', fitListHeight);
+  // If template calls renderSidebar/show on load, our override will be used.
+})();
+</script>
+
+
+<script>
+(function(){
+  const DPR = Math.max(1, Math.min(3, window.devicePixelRatio||1));
+
+  function drawGrid(ctx, w, h){
+    ctx.clearRect(0,0,w,h);
+    ctx.save();
+    ctx.strokeStyle='rgba(0,0,0,0.35)'; ctx.lineWidth=1; ctx.strokeRect(0.5,0.5,w-1,h-1);
+    ctx.beginPath(); ctx.moveTo(w/2,0); ctx.lineTo(w/2,h); ctx.moveTo(0,h/2); ctx.lineTo(w,h/2);
+    ctx.strokeStyle='rgba(0,0,0,0.18)'; ctx.lineWidth=1; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(w,h); ctx.moveTo(w,0); ctx.lineTo(0,h);
+    ctx.strokeStyle='rgba(0,0,0,0.12)'; ctx.stroke(); ctx.restore();
+  }
+
+  function drawHanziToCanvas(cnv, ch){
+    if (!cnv) return;
+    const ctx = cnv.getContext('2d');
+    const w = cnv.width || cnv.clientWidth || 300;
+    const h = cnv.height || cnv.clientHeight || 300;
+    if (cnv.width === 0) { cnv.width = w; }
+    if (cnv.height === 0) { cnv.height = h; }
+    drawGrid(ctx, cnv.width, cnv.height);
+    if (!ch) return;
+    ctx.save();
+    ctx.fillStyle = '#000';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const f = Math.floor(h*0.72);
+    ctx.font = f+'px WenKai, KaiTi, "Kaiti SC", STKaiti, serif';
+    ctx.fillText(ch, cnv.width/2, cnv.height/2);
+    ctx.restore();
+  }
+
+  function toneNumberToMarksSafe(py){
+    try { return (typeof toneNumberToMarks==='function') ? toneNumberToMarks(py||"") : (py||""); }
+    catch(e){ return py||""; }
+  }
+
+  if (typeof window.renderSidebar !== 'function'){
+    window.renderSidebar = function(idx){
+      const ul = document.querySelector('#charList'); if (!ul) return;
+      ul.innerHTML = "";
+      const deck = window.DECK || [];
+      deck.forEach((it,i)=>{
+        const li = document.createElement('li');
+        li.className = (i===idx)?'active':'';
+        const hanWrap = document.createElement('div');
+        hanWrap.className = 'han';
+        Array.from(it.hanzi||"").forEach(ch=>{
+          const sp = document.createElement('span'); sp.className='c'; sp.textContent = ch; hanWrap.appendChild(sp);
+        });
+        const meta = document.createElement('div'); meta.className = 'meta';
+        const py = document.createElement('span'); py.className = 'py'; py.textContent = toneNumberToMarksSafe(it.pinyin||"");
+        const en = document.createElement('span'); en.className = 'en'; en.textContent = it.meaning||"";
+        meta.appendChild(py); meta.appendChild(en);
+        li.appendChild(hanWrap); li.appendChild(meta);
+        li.addEventListener('click', ()=>{ if (typeof window.show==='function') window.show(i); });
+        ul.appendChild(li);
+      });
+    }
+  }
+
+  if (typeof window.show !== 'function'){
+    window.show = function(i){
+      const deck = window.DECK || [];
+      const it = deck[i] || {};
+      window._IDX = i|0;
+      const H = document.getElementById('hanzi'); if (H) H.textContent = it.hanzi || "";
+      const P = document.getElementById('pinyin'); if (P) P.textContent = toneNumberToMarksSafe(it.pinyin||"");
+      const M = document.getElementById('meaning'); if (M) M.textContent = it.meaning || "";
+      const wav = document.getElementById('srcWav'); if (wav && it.audio) wav.setAttribute('src', it.audio);
+      const aud = document.getElementById('audio'); if (aud && aud.load) aud.load();
+      const gif = document.getElementById('animImg'); if (gif && it.media){ gif.setAttribute('src', it.media); gif.style.display=''; }
+
+      const chars = Array.from(it.hanzi||"");
+      const c1 = document.getElementById('mainGridCanvas1');
+      const c2 = document.getElementById('mainGridCanvas2');
+      drawHanziToCanvas(c1, chars[0]||"");
+      if (c2){
+        if (chars.length>1){ c2.parentElement.style.display=''; drawHanziToCanvas(c2, chars[1]||""); }
+        else { c2.parentElement.style.display='none'; }
+      }
+
+      const lis = document.querySelectorAll('#charList li');
+      lis.forEach((li,idx)=>{ li.classList.toggle('active', idx===i); });
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    try {
+      if (Array.isArray(window.DECK) && window.DECK.length){
+        if (typeof window.renderSidebar==='function') window.renderSidebar(0);
+        if (typeof window.show==='function') window.show(0);
+      }
+    } catch(e){ console.log(e); }
+  });
+})();
+</script>
+
+
+<script>
+(function(){
+  const DPR = Math.max(1, Math.min(3, window.devicePixelRatio||1));
+
+  // --- Grid & trace helpers ---
+  function drawMiZiGe(ctx, w, h){
+    ctx.clearRect(0,0,w,h);
+    ctx.save();
+    ctx.strokeStyle='rgba(0,0,0,0.35)'; ctx.lineWidth=1; ctx.strokeRect(0.5,0.5,w-1,h-1);
+    ctx.beginPath(); ctx.moveTo(w/2,0); ctx.lineTo(w/2,h); ctx.moveTo(0,h/2); ctx.lineTo(w,h/2);
+    ctx.strokeStyle='rgba(0,0,0,0.18)'; ctx.lineWidth=1; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(w,h); ctx.moveTo(w,0); ctx.lineTo(0,h);
+    ctx.strokeStyle='rgba(0,0,0,0.12)'; ctx.stroke(); ctx.restore();
+  }
+
+  function getGuideForIndex(word, iZero){
+    const n = (iZero|0) + 1; // 1..10
+    const chars = Array.from(word||"");
+    if (chars.length <= 0) return {ch:"", tone:null};
+    if (chars.length === 1){
+      // Single-char rule: black in 1 & 6; gray in 2..5; others empty
+      if (n === 1 || n === 6) return {ch: chars[0], tone: 'black'};
+      if (n >= 2 && n <= 5)   return {ch: chars[0], tone: 'gray'};
+      return {ch:"", tone:null};
+    } else {
+      // Multi-char rule (use first two): black in 1 & 2; gray in 3,4,6,7; others empty
+      const c0 = chars[0], c1 = chars[1];
+      if (n === 1) return {ch:c0, tone:'black'};
+      if (n === 2) return {ch:c1, tone:'black'};
+      if (n === 3) return {ch:c0, tone:'gray'};
+      if (n === 4) return {ch:c1, tone:'gray'};
+      if (n === 6) return {ch:c0, tone:'gray'};
+      if (n === 7) return {ch:c1, tone:'gray'};
+      return {ch:"", tone:null};
+    }
+  }
+
+  function redrawGuideChar(cnv, word, iZero){
+    if (!cnv) return;
+    const ctx = cnv.getContext('2d');
+    const w = cnv.width, h = cnv.height;
+    drawMiZiGe(ctx, w, h);
+    const g = getGuideForIndex(word, iZero);
+    if (!g.tone || !g.ch) return;
+    ctx.save();
+    ctx.globalAlpha = (g.tone==='black')? 0.96 : 0.22;
+    ctx.fillStyle = '#000';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const f = Math.floor(h*0.72);
+    ctx.font = f+'px WenKai, KaiTi, "Kaiti SC", STKaiti, serif';
+    ctx.fillText(g.ch, w/2, h/2);
+    ctx.restore();
+  }
+
+  function redrawAllGuides(){
+    try {
+      const deck = window.DECK || [];
+      const cur = deck[(window._IDX|0)] || {};
+      const word = cur.hanzi || "";
+      const boxes = Array.from(document.querySelectorAll('canvas.trace'));
+      boxes.forEach((cnv, i)=>{
+        // Ensure canvas backing size
+        if (!cnv.width || !cnv.height){
+          const b = cnv.getBoundingClientRect();
+          cnv.width = Math.max(1, Math.floor(b.width * DPR));
+          cnv.height = Math.max(1, Math.floor(b.height * DPR));
+        }
+        redrawGuideChar(cnv, word, i);
+      });
+    } catch(e){}
+  }
+
+  // Rebind the small ✕ buttons to clear only strokes & keep guide char
+  function bindTraceClears(){
+    document.querySelectorAll('.traceClear').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{
+        e.preventDefault(); e.stopPropagation();
+        const i = parseInt(btn.getAttribute('data-i'), 10) || 0;
+        const boxes = document.querySelectorAll('canvas.trace');
+        const cnv = boxes[i];
+        const deck = window.DECK || [];
+        const cur = deck[(window._IDX|0)] || {};
+        const word = cur.hanzi || "";
+        // Clear and redraw just this box
+        if (cnv){
+          const ctx = cnv.getContext('2d');
+          drawMiZiGe(ctx, cnv.width, cnv.height);
+          redrawGuideChar(cnv, word, i);
+        }
+      });
+    });
+  }
+
+  // Ensure multi‑char words in list are inline
+  function wrapListCharsInline(){
+    const ul = document.querySelector('#charList'); if (!ul) return;
+    ul.querySelectorAll('.han').forEach(h => {
+      if (h.dataset.wrapped === '1') return;
+      const text = h.textContent || "";
+      h.textContent = "";
+      Array.from(text).forEach(ch => {
+        const sp = document.createElement('span'); sp.className='c'; sp.textContent = ch;
+        h.appendChild(sp);
+      });
+      h.dataset.wrapped = '1';
+    });
+  }
+
+  // Fit the list height to match main practice area → Prev button
+  function fitListHeight(){
+    const list = document.getElementById('charList'); if (!list) return;
+    // Try to locate Prev button
+    let prev = document.getElementById('prevBtn');
+    if (!prev){
+      // Fallback: find a button with innerText like 'Prev'
+      const btns = Array.from(document.querySelectorAll('button, a'));
+      prev = btns.find(b => (b.textContent||'').trim().toLowerCase()==='prev') || null;
+    }
+    // Determine top anchor: the top of the trace/practice column or list itself
+    const topEl = list;
+    const topRect = topEl.getBoundingClientRect();
+    let bottomY = window.innerHeight - 16;
+    if (prev){
+      const r = prev.getBoundingClientRect();
+      bottomY = r.bottom;
+    } else {
+      // Fallback: try to use the main column's bottom
+      const main = document.querySelector('.mainCol') || document.querySelector('#mainGridCanvas1')?.parentElement;
+      if (main){
+        const r2 = main.getBoundingClientRect();
+        bottomY = r2.bottom;
+      }
+    }
+    const maxH = Math.max(200, Math.floor(bottomY - topRect.top));
+    list.style.maxHeight = maxH + "px";
+    list.style.overflow = 'auto';
+  }
+
+  // Hook into show() to redraw guides on each card change
+  const _origShow = window.show;
+  window.show = function(i){
+    if (typeof _origShow === 'function') _origShow(i);
+    window._IDX = i|0;
+    // After content updates, refresh guides
+    setTimeout(()=>{ redrawAllGuides(); wrapListCharsInline(); fitListHeight(); }, 0);
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    bindTraceClears();
+    wrapListCharsInline();
+    fitListHeight();
+    // Initial draw of guides
+    setTimeout(redrawAllGuides, 0);
+  });
+  window.addEventListener('resize', fitListHeight);
+})();
+</script>
+
+
+<script id="trace-draw-js">
+(function(){
+  const DPR = Math.max(1, Math.min(3, window.devicePixelRatio||1));
+
+  function getRel(cnv, ev){
+    const r = cnv.getBoundingClientRect();
+    let x, y;
+    if (ev.touches && ev.touches[0]){
+      x = (ev.touches[0].clientX - r.left) * DPR;
+      y = (ev.touches[0].clientY - r.top) * DPR;
+    } else if (ev.changedTouches && ev.changedTouches[0]){
+      x = (ev.changedTouches[0].clientX - r.left) * DPR;
+      y = (ev.changedTouches[0].clientY - r.top) * DPR;
+    } else {
+      x = (ev.clientX - r.left) * DPR;
+      y = (ev.clientY - r.top) * DPR;
+    }
+    return {x,y};
+  }
+
+  function attachTrace(cnv){
+    const b = cnv.getBoundingClientRect();
+    const targetW = Math.max(1, Math.round(b.width * DPR));
+    const targetH = Math.max(1, Math.round(b.height * DPR));
+    if (cnv.width !== targetW || cnv.height !== targetH){
+      cnv.width = targetW; cnv.height = targetH;
+      const ctx0 = cnv.getContext('2d');
+      if (typeof redrawGuideChar === 'function'){
+        try {
+          const deck = window.DECK || [];
+          const cur = deck[(window._IDX|0)] || {};
+          const word = cur.hanzi || "";
+          const i = Array.from(document.querySelectorAll('canvas.trace')).indexOf(cnv);
+          redrawGuideChar(cnv, word, i);
+        } catch(e){}
+      }
+    }
+
+    const ctx = cnv.getContext('2d');
+    let drawing = false, last = null;
+
+    function start(ev){
+      ev.preventDefault();
+      drawing = true;
+      last = getRel(cnv, ev);
+      if (cnv.setPointerCapture && ev.pointerId !== undefined){
+        try { cnv.setPointerCapture(ev.pointerId); } catch(e){}
+      }
+    }
+    function move(ev){
+      if (!drawing) return;
+      ev.preventDefault();
+      const p = getRel(cnv, ev);
+      ctx.beginPath();
+      ctx.moveTo(last.x, last.y);
+      ctx.lineTo(p.x, p.y);
+      ctx.strokeStyle = 'rgba(220,30,30,1)';
+      ctx.lineWidth = 6 * DPR;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.stroke();
+      last = p;
+    }
+    function end(ev){
+      if (!drawing) return;
+      ev.preventDefault();
+      drawing = false;
+      if (cnv.releasePointerCapture && ev.pointerId !== undefined){
+        try { cnv.releasePointerCapture(ev.pointerId); } catch(e){}
+      }
+    }
+
+    cnv.addEventListener('pointerdown', start);
+    cnv.addEventListener('pointermove', move);
+    cnv.addEventListener('pointerup', end);
+    cnv.addEventListener('pointercancel', end);
+    cnv.addEventListener('pointerleave', end);
+
+    cnv.addEventListener('mousedown', start);
+    window.addEventListener('mousemove', (e)=>{ if(drawing) move(e); }, {passive:false});
+    window.addEventListener('mouseup', end, {passive:false});
+
+    cnv.addEventListener('touchstart', start, {passive:false});
+    cnv.addEventListener('touchmove', move, {passive:false});
+    cnv.addEventListener('touchend', end, {passive:false});
+    cnv.addEventListener('touchcancel', end, {passive:false});
+  }
+
+  function bindAllTraces(){
+    document.querySelectorAll('canvas.trace').forEach(attachTrace);
+  }
+
+  const _origShow = window.show;
+  window.show = function(i){
+    if (typeof _origShow === 'function') _origShow(i);
+    setTimeout(bindAllTraces, 0);
+  };
+
+  document.addEventListener('DOMContentLoaded', bindAllTraces);
+  window.addEventListener('resize', function(){
+    setTimeout(bindAllTraces, 100);
+  });
+})();
+</script>
+
+
+
+
+
+
+
+<script id="chargrid-draw-js">
+(function(){
+  const DPR = Math.max(1, Math.min(3, window.devicePixelRatio||1));
+  function drawMiZiGe(ctx, w, h){
+    ctx.clearRect(0,0,w,h);
+    ctx.save();
+    ctx.strokeStyle='rgba(0,0,0,0.35)'; ctx.lineWidth=1; ctx.strokeRect(0.5,0.5,w-1,h-1);
+    ctx.beginPath(); ctx.moveTo(w/2,0); ctx.lineTo(w/2,h); ctx.moveTo(0,h/2); ctx.lineTo(w,h/2);
+    ctx.strokeStyle='rgba(0,0,0,0.18)'; ctx.lineWidth=1; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(w,h); ctx.moveTo(w,0); ctx.lineTo(0,h);
+    ctx.strokeStyle='rgba(0,0,0,0.12)'; ctx.stroke(); ctx.restore();
+  }
+  function drawBlackChar(cnv, ch){
+    if (!cnv) return;
+    const ctx = cnv.getContext('2d');
+    const cssW = 160, cssH = 160;
+    const targetW = Math.max(1, Math.round(cssW * DPR));
+    const targetH = Math.max(1, Math.round(cssH * DPR));
+    if (cnv.width !== targetW || cnv.height !== targetH){
+      cnv.width = targetW; cnv.height = targetH;
+    }
+    drawMiZiGe(ctx, cnv.width, cnv.height);
+    if (!ch) return;
+    ctx.save();
+    ctx.fillStyle = '#000';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const f = Math.floor(targetH * 0.72);
+    ctx.font = f + 'px WenKai, KaiTi, "Kaiti SC", STKaiti, serif';
+    ctx.fillText(ch, targetW/2, targetH/2);
+    ctx.restore();
+  }
+  function updateCharGrid(){
+    try{
+      const deck = window.DECK || [];
+      const cur = deck[(window._IDX|0)] || {};
+      const ch = (cur.hanzi||'').toString().charAt(0) || '';
+      const cnv = document.getElementById('charGridCanvas');
+      drawBlackChar(cnv, ch);
+    }catch(e){}
+  }
+  const _origShow = window.show;
+  window.show = function(i){
+    if (typeof _origShow === 'function') _origShow(i);
+    updateCharGrid();
+    if (typeof remountTrace === 'function') remountTrace();
+  };
+  document.addEventListener('DOMContentLoaded', updateCharGrid);
+  window.addEventListener('resize', updateCharGrid);
+})();
+</script>
+
+<script id="chargrid-text-js">
+(function(){
+  function toneSafe(py){
+    try { return (typeof toneNumberToMarks==='function') ? toneNumberToMarks(py||"") : (py||""); }
+    catch(e){ return py||""; }
+  }
+  function currentCard(){
+    var deck = window.DECK || [];
+    return deck[(window._IDX|0)] || {};
+  }
+  function updateCharText(){
+    try {
+      var cur = currentCard();
+      var py = document.getElementById('charPinyin');
+      var en = document.getElementById('charEnglish');
+      var img = document.getElementById('charImage');
+      if (py) py.textContent = toneSafe(cur.pinyin||"");
+      if (en) en.textContent = cur.meaning || "";
+      if (img){
+        if (cur.image) {
+          img.src = cur.image;
+        } else if (cur.pinyin) {
+          img.src = 'media/' + String(cur.pinyin).trim() + '.gif';
+        } else {
+          img.removeAttribute('src');
+        }
+      }
+    } catch(e){}
+  }
+  function bindToggles(){
+    var pyBtn = document.getElementById('btnPinyin');
+    var enBtn = document.getElementById('btnEnglish');
+    var py = document.getElementById('charPinyin');
+    var en = document.getElementById('charEnglish');
+    if (pyBtn && py){ pyBtn.addEventListener('click', function(){ py.classList.toggle('hiddenLine'); }); }
+    if (enBtn && en){ enBtn.addEventListener('click', function(){ en.classList.toggle('hiddenLine'); }); }
+  }
+  function bindAudio(){
+    var btn = document.getElementById('btnPlay');
+    var audio = document.getElementById('audioPlayer');
+    if (!audio){
+      audio = document.createElement('audio');
+      audio.id = 'audioPlayer';
+      audio.preload = 'auto';
+      audio.style.display = 'none';
+      document.body.appendChild(audio);
+    }
+    if (btn){
+      btn.addEventListener('click', function(){
+        var cur = currentCard();
+        var py = (cur.pinyin||'').trim();
+        if (py){
+          audio.src = 'audio/' + py + '.wav';
+          var p = audio.play();
+          if (p && typeof p.catch === 'function'){ p.catch(function(){}); }
+        }
+      });
+    }
+  }
+  var _origShow2 = window.show;
+  window.show = function(i){
+    if (typeof _origShow2 === 'function') _origShow2(i);
+    updateCharText();
+  };
+  document.addEventListener('DOMContentLoaded', function(){
+    updateCharText();
+    bindToggles();
+    bindAudio();
+  });
+})();
+</script>
+
+
+
+
+
+<audio id="audioPlayer" preload="auto" style="display: none;"></audio>
+<script src="file:///C:/CIP/02_Chinese%20Writing/hanzi_trace_module_prod_v1_1_2.js"></script>
+
+<script id="trace-mount-from-deck">
+(function(){
+  function currentChar(){
+    try{
+      var deck = window.DECK || [];
+      var cur = deck[(window._IDX|0)] || {};
+      var han = (cur.hanzi||"").toString();
+      return han ? han.charAt(0) : "家";
+    }catch(e){ return "家"; }
+  }
+  function doMount(){
+    var slot = document.getElementById('trace-slot');
+    if (!slot || !window.HanziTraceModule) return;
+    slot.innerHTML = "";
+    HanziTraceModule.mount(slot, {
+      // Auto-loads: <char>_settings.json (optional), <char>_strokes.json, <char>_dots.json from basePath
+      char: currentChar(),
+      basePath: "./media/hanzi/",
+      showDots: "active",
+      labelScale: 1.8
+    });
+  }
+  document.addEventListener('DOMContentLoaded', doMount);
+  var _show = window.show;
+  window.show = function(i){
+    if (typeof _show === 'function') _show(i);
+    doMount();
+  };
+  window.remountTrace = doMount;
+})();
+</script>
+
+
+<script id="trace-save-to-boxes">
+(function(){
+  function drawSmallGrid(cnv){
+    const DPR = Math.max(1, Math.min(3, window.devicePixelRatio||1));
+    const cssW = 120, cssH = 120;
+    cnv.width = Math.round(cssW * DPR);
+    cnv.height = Math.round(cssH * DPR);
+    const ctx = cnv.getContext('2d');
+    ctx.fillStyle = '#fff'; ctx.fillRect(0,0,cnv.width,cnv.height);
+    ctx.strokeStyle='rgba(0,0,0,0.35)'; ctx.lineWidth=1; ctx.strokeRect(0.5,0.5,cnv.width-1,cnv.height-1);
+    ctx.beginPath(); ctx.moveTo(cnv.width/2,0); ctx.lineTo(cnv.width/2,cnv.height);
+    ctx.moveTo(0,cnv.height/2); ctx.lineTo(cnv.width,cnv.height/2);
+    ctx.strokeStyle='rgba(0,0,0,0.18)'; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(cnv.width,cnv.height);
+    ctx.moveTo(cnv.width,0); ctx.lineTo(0,cnv.height);
+    ctx.strokeStyle='rgba(0,0,0,0.12)'; ctx.stroke();
+    return ctx;
+  }
+
+  async function getTraceSnapshotCanvas(){
+    const slot = document.getElementById('trace-slot');
+    if (!slot) return null;
+    const srcCanvas = slot.querySelector('canvas');
+    if (srcCanvas) return srcCanvas;
+    const svg = slot.querySelector('svg');
+    if (svg){
+      const xml = new XMLSerializer().serializeToString(svg);
+      const dataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml);
+      const img = new Image();
+      await new Promise((res, rej)=>{ img.onload=res; img.onerror=rej; img.src=dataUrl; });
+      const out = document.createElement('canvas');
+      const vb = svg.viewBox && svg.viewBox.baseVal ? {w:svg.viewBox.baseVal.width, h:svg.viewBox.baseVal.height} : null;
+      const bb = svg.getBoundingClientRect();
+      const w = (vb && vb.w) ? vb.w : (bb.width||160);
+      const h = (vb && vb.h) ? vb.h : (bb.height||160);
+      const DPR = Math.max(1, Math.min(3, window.devicePixelRatio||1));
+      out.width = Math.round(w * DPR);
+      out.height = Math.round(h * DPR);
+      const ctx = out.getContext('2d');
+      ctx.fillStyle = '#fff'; ctx.fillRect(0,0,out.width,out.height);
+      ctx.drawImage(img, 0,0,out.width,out.height);
+      return out;
+    }
+    return null;
+  }
+
+  function isBoxFilled(canvas){
+    if (canvas && canvas.dataset && canvas.dataset.filled === "1") return true;
+    try{
+      const px = canvas.getContext('2d').getImageData(5,5,1,1).data;
+      const emptyish = (px[0]>230 && px[1]>230 && px[2]>230);
+      return !emptyish;
+    }catch(e){ return false; }
+  }
+  function markFilled(canvas, filled){
+    if (canvas && canvas.dataset) canvas.dataset.filled = filled ? "1" : "0";
+  }
+
+  async function saveTraceToBoxIndex(idx){
+    const id = 'sg'+idx;
+    const cnv = document.getElementById(id);
+    if (!cnv) return false;
+    const ctx = drawSmallGrid(cnv);
+    const src = await getTraceSnapshotCanvas();
+    if (!src) return false;
+    const tw = cnv.width, th = cnv.height;
+    const arSrc = src.width / src.height;
+    const arTgt = tw / th;
+    let dw, dh;
+    if (arSrc > arTgt){ dw = tw; dh = Math.round(tw / arSrc); } else { dh = th; dw = Math.round(th * arSrc); }
+    const dx = Math.round((tw - dw)/2), dy = Math.round((th - dh)/2);
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(src, dx, dy, dw, dh);
+    markFilled(cnv, true);
+    return true;
+  }
+
+  async function saveTraceSmart(){
+    for (let i=1;i<=5;i++){
+      const cnv = document.getElementById('sg'+i);
+      if (!cnv) continue;
+      if (!isBoxFilled(cnv)){
+        const ok = await saveTraceToBoxIndex(i);
+        if (ok) return;
+      }
+    }
+    let ptr = parseInt(localStorage.getItem('traceOverwritePtr')||'1',10);
+    if (ptr<1 || ptr>5) ptr = 1;
+    const ok2 = await saveTraceToBoxIndex(ptr);
+    ptr = (ptr % 5) + 1;
+    localStorage.setItem('traceOverwritePtr', String(ptr));
+    return ok2;
+  }
+
+  function drawAllSmall(){
+    document.querySelectorAll('#bottomGrid canvas.smallTrace').forEach(cnv=>{
+      drawSmallGrid(cnv);
+    });
+  }
+
+  function bindClearButtons(){
+    document.querySelectorAll('#bottomGrid .smallClear').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const id = btn.getAttribute('data-target');
+        const cnv = document.getElementById(id);
+        if (cnv){
+          drawSmallGrid(cnv);
+          markFilled(cnv, false);
+        }
+      });
+    });
+  }
+
+  function ready(fn){
+    if (document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', fn); }
+    else { fn(); }
+  }
+
+  ready(function(){
+    drawAllSmall();
+    bindClearButtons();
+    const btn = document.getElementById('saveTraceBtn');
+    if (btn){ btn.addEventListener('click', function(e){ e.preventDefault(); saveTraceSmart(); }); }
+  });
+})();
+</script>
+
+
+<script>
+(function(){
+  document.addEventListener('DOMContentLoaded', function(){
+    var btn = document.getElementById('saveTraceBtn');
+    if (!btn) return;
+    if (typeof window.saveTraceSmart === 'function'){
+      btn.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); window.saveTraceSmart(); });
+    } else if (typeof window.saveTraceToBoxIndex === 'function'){
+      btn.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); window.saveTraceToBoxIndex(1); });
+    } else {
+      btn.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); console.log('Save trace: hook me to saveTraceSmart()'); });
+    }
+  });
+})();
+</script>
+
+
+<!-- Tracer module + Save-to-box shim -->
+<script src="hanzi_trace_module_prod_v1_1_2e.js"></script>
+<script src="hanzi_trace_module_prod_v1_1_3e_shim.js"></script>
+
+<script>
+(function(){
+  // Robust getter for the hanzi from a DECK item (string or object)
+  function getChar(entry){
+    if (entry == null) return '';
+    if (typeof entry === 'string') return entry;
+    return entry.char || entry.hanzi || entry.word || entry.title || entry.name || '';
+  }
+
+  // Mount (or remount) the tracer into #tracegrid for the given character.
+  function mountTracerForChar(hz){
+    try{
+      var slot = document.getElementById('tracegrid') || document.querySelector('#trace-slot') || document.body;
+      slot.innerHTML = ''; // clear previous tracer UI
+      // Expect JSON files at ./media/hanzi/<char>_settings.json etc.
+      HanziTraceModule.mount(slot, {
+        char: hz,
+        basePath: './media/hanzi/'
+      });
+    }catch(e){
+      console.warn('Tracer mount failed for', hz, e);
+    }
+  }
+
+  // Find the list/menu that drives card changes. We support clicks on any
+  // element bearing [data-hanzi] or menu list items containing the text.
+  function wireMenu(){
+    // prefer a container with class .menu or id #sideMenu, but fallback to body
+    var menu = document.querySelector('.menu, #sideMenu, #leftMenu, .leftList, .navList') || document.body;
+    menu.addEventListener('click', function(ev){
+      var t = ev.target;
+      var hz = (t && (t.getAttribute && t.getAttribute('data-hanzi'))) || (t && t.textContent && t.textContent.trim()) || '';
+      if(!hz) return;
+      // If the click is on pinyin/english buttons etc., ignore
+      if (/^(Play|Pinyin|English|Save)$/i.test(hz)) return;
+      // Sanitize to one CJK char if the list item has extra text
+      if (hz.length > 1){
+        // Try to extract the first CJK character
+        var m = hz.match(/[\u4E00-\u9FFF]/);
+        if (m) hz = m[0];
+      }
+      if (!hz) return;
+      mountTracerForChar(hz);
+    });
+  }
+
+  // If window.DECK exists and a current card is selected, mount on load.
+  function mountOnLoad(){
+    var first = null;
+    if (window.DECK && Array.isArray(window.DECK) && window.DECK.length){
+      first = getChar(window.DECK[0]);
+    }
+    // Also check if there's an element already marked as selected in the menu
+    var current = document.querySelector('[data-hanzi].active, .menu .active, .navList .active');
+    if (current){
+      var hz = current.getAttribute('data-hanzi') || current.textContent.trim();
+      if (hz) first = hz;
+    }
+    if (first){
+      // In case string contains extra text, extract first CJK
+      var m = first.match && first.match(/[\u4E00-\u9FFF]/);
+      if (m) first = m[0];
+      mountTracerForChar(first);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    wireMenu();
+    mountOnLoad();
+  });
+})();
+</script>
+
+
+<script>
+// --- Smart loader: try local ./media/hanzi/<char>_*.json; if strokes missing, fallback to Hanzi Writer CDN ---
+(function(){
+  const CDN_BASE = 'https://cdn.jsdelivr.net/npm/hanzi-writer-data@latest/';
+  function enc(s){ return encodeURIComponent(s); }
+
+  async function fetchJSON(url){
+    const r = await fetch(url, {cache: 'no-store'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    return r.json();
+  }
+
+  async function loadLocalTriple(hz){
+    const base = './media/hanzi/';
+    const [settings, dots, strokes] = await Promise.allSettled([
+      fetchJSON(base + enc(hz) + '_settings.json'),
+      fetchJSON(base + enc(hz) + '_dots.json'),
+      fetchJSON(base + enc(hz) + '_strokes.json')
+    ]);
+    return {
+      settings: settings.status === 'fulfilled' ? settings.value : null,
+      dots: dots.status === 'fulfilled' ? dots.value : null,
+      strokes: strokes.status === 'fulfilled' ? strokes.value : null
+    };
+  }
+
+  async function loadStrokesWithFallback(hz){
+    const local = await loadLocalTriple(hz);
+    if (local.strokes && Array.isArray(local.strokes.strokes)) {
+      return local;
+    }
+    // Fallback to CDN (Hanzi Writer data format)
+    try{
+      const hw = await fetchJSON(CDN_BASE + enc(hz) + '.json');
+      const mapped = { strokes: hw.strokes || [] };
+      return { settings: local.settings, dots: local.dots, strokes: mapped };
+    }catch(e){
+      // give up; return local (may be null)
+      return local;
+    }
+  }
+
+  // Replace existing mountTracerForChar if present, else define a new one
+  window.mountTracerForChar = async function(hz){
+    try{
+      const slot = document.getElementById('tracegrid') || document.querySelector('#trace-slot') || document.body;
+      slot.innerHTML = '';
+
+      const data = await loadStrokesWithFallback(hz);
+      // If nothing at all, still mount so grid shows
+      if (window.HanziTraceModule && typeof window.HanziTraceModule.mount === 'function'){
+        if (data && (data.settings || data.dots || data.strokes)){
+          HanziTraceModule.mount(slot, {
+            char: hz,
+            basePath: './media/hanzi/',
+            preloaded: {
+              settings: data.settings || { size: 320, dotTol: 2, strokeTol: 8, nextDelaySec: 0.4 },
+              dots: data.dots || { dots: [] },
+              strokes: data.strokes || { strokes: [] }
+            }
+          });
+        } else {
+          HanziTraceModule.mount(slot, { char: hz, basePath: './media/hanzi/' });
+        }
+      }
+    }catch(e){
+      console.warn('Tracer mount failed for', hz, e);
+    }
+  };
+
+  // Re-wire menu clicks to use the new loader
+  (function wireMenu(){
+    const menu = document.querySelector('.menu, #sideMenu, #leftMenu, .leftList, .navList') || document.body;
+    menu.addEventListener('click', function(ev){
+      const t = ev.target;
+      let hz = (t && t.getAttribute && t.getAttribute('data-hanzi')) || (t && t.textContent && t.textContent.trim()) || '';
+      if(!hz) return;
+      if (/^(Play|Pinyin|English|Save)$/i.test(hz)) return;
+      if (hz.length > 1){
+        const m = hz.match(/[\u4E00-\u9FFF]/);
+        if (m) hz = m[0];
+      }
+      if (!hz) return;
+      mountTracerForChar(hz);
+    });
+  })();
+
+  // Mount first card on load
+  document.addEventListener('DOMContentLoaded', function(){
+    const firstEl = document.querySelector('[data-hanzi].active, .menu .active, .navList .active');
+    let hz = firstEl ? (firstEl.getAttribute('data-hanzi') || firstEl.textContent.trim()) : '';
+    if (!hz && window.DECK && Array.isArray(window.DECK) && window.DECK.length){
+      const e = window.DECK[0];
+      hz = (typeof e === 'string') ? e : (e.char || e.hanzi || e.word || e.title || e.name || '');
+    }
+    if (hz){
+      const m = hz.match(/[\u4E00-\u9FFF]/);
+      if (m) hz = m[0];
+      mountTracerForChar(hz);
+    }
+  });
+})();
+</script>
+<link rel="stylesheet" href="sidebar_scrollfix.css">
+<script src="sidebar_scrollfix.js"></script>
+<script>
+(function(){
+  // Save the visible card area (no buttons/menus/images) into a PNG and open in a new tab
+  function saveCard(){
+    const DPR = Math.max(1, Math.min(3, window.devicePixelRatio||1));
+
+    // --- Collect sources (IDs/classes based on your current file) ---
+    const mainGrid = document.getElementById('charGridCanvas');                 // 160×160
+    const traceCnv = document.querySelector('#tracegrid canvas');               // tracing module canvas (whatever is painted)
+    const smallBoxes = Array.from(document.querySelectorAll('#bottomGrid canvas.smallTrace')); // sg1..sg5
+    const elPy = document.getElementById('charPinyin');
+    const elEn = document.getElementById('charEnglish');
+
+    // Defensive checks
+    if (!mainGrid || !traceCnv) {
+      alert('Main grid or trace canvas not found.');
+      return;
+    }
+
+    // --- Intrinsic sizes from canvases ---
+    const mgW = mainGrid.width, mgH = mainGrid.height;
+    const trW = traceCnv.width,  trH = traceCnv.height;
+
+    // Layout constants
+    const pad = 24*DPR, gap = 16*DPR, rowGap = 20*DPR;
+    const txtH = 64*DPR; // space reserved for pinyin+english
+    const smallW = (smallBoxes[0]?.width || 120), smallH = (smallBoxes[0]?.height || 120);
+
+    // Composite canvas size (two columns top row: mainGrid | trace; text under mainGrid; boxes row below)
+    const topW = mgW + gap + trW;
+    const bottomW = smallBoxes.length ? (smallBoxes.length*smallW + (smallBoxes.length-1)*gap) : 0;
+    const width = pad*2 + Math.max(topW, bottomW);
+    const height = pad*2 + Math.max(mgH, trH) + txtH + rowGap + (smallBoxes.length ? smallH : 0);
+
+    const cvs = document.createElement('canvas');
+    cvs.width = Math.max(1, Math.floor(width));
+    cvs.height = Math.max(1, Math.floor(height));
+    const ctx = cvs.getContext('2d');
+
+    // White background
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, cvs.width, cvs.height);
+
+    // --- Draw top row (mainGrid | trace) centered as a group ---
+    const topGroupW = topW;
+    let startX = Math.floor((cvs.width - topGroupW)/2);
+    const topY = pad;
+
+    // main grid
+    ctx.drawImage(mainGrid, startX, topY);
+    // trace area to the right
+    ctx.drawImage(traceCnv, startX + mgW + gap, topY);
+
+    // --- Draw text centered under the taller of the two top canvases ---
+    const textY = topY + Math.max(mgH, trH) + Math.floor(gap*0.5);
+    const centerX = Math.floor(cvs.width / 2);
+    ctx.fillStyle = '#000';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+
+    // Pinyin (tone-marked text already rendered in DOM)
+    const pyText = (elPy && elPy.textContent) ? elPy.textContent : '';
+    ctx.font = (22*DPR) + 'px WenKai, KaiTi, "Kaiti SC", STKaiti, serif';
+    ctx.fillText(pyText, centerX, textY);
+
+    // English
+    const enText = (elEn && elEn.textContent) ? elEn.textContent : '';
+    ctx.font = (18*DPR) + 'px system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial';
+    ctx.fillText(enText, centerX, textY + 28*DPR);
+
+    // --- Small boxes row ---
+    if (smallBoxes.length){
+      const boxesY = textY + 28*DPR + 24*DPR + rowGap; // below text
+      const rowW = smallBoxes.length*smallW + (smallBoxes.length-1)*gap;
+      let x = Math.floor((cvs.width - rowW)/2);
+      smallBoxes.forEach((cnv) => {
+        ctx.drawImage(cnv, x, boxesY);
+        x += smallW + gap;
+      });
+    }
+
+    // Timestamp (bottom-right)
+    const now = new Date();
+    const ts = now.getFullYear().toString().padStart(4,'0')
+             + (now.getMonth()+1).toString().padStart(2,'0')
+             + now.getDate().toString().padStart(2,'0') + '-'
+             + now.getHours().toString().padStart(2,'0')
+             + now.getMinutes().toString().padStart(2,'0')
+             + now.getSeconds().toString().padStart(2,'0');
+    ctx.fillStyle = '#222';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'bottom';
+    ctx.font = (16*DPR)+'px system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial';
+    ctx.fillText(ts, cvs.width - 10*DPR, cvs.height - 8*DPR);
+
+    // Filename stem from current hanzi/pinyin if available
+    let stem = 'card';
+    try {
+      const deck = window.DECK || [];
+      const cur = deck[(window._IDX|0)] || {};
+      stem = (cur.pinyin || cur.hanzi || 'card').toString().replace(/[^\w\-]+/g,'_').slice(0,60);
+    } catch(e){}
+
+    const filename = stem + '_' + ts + '.png';
+
+    // Open in a new tab AND trigger download
+    cvs.toBlob((blob)=>{
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
+      const a = document.createElement('a');
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url), 60000);
+    }, 'image/png');
+  }
+
+  // Wire the existing Save button in menugrid
+  document.addEventListener('DOMContentLoaded', function(){
+    const btn = document.getElementById('btnSave');
+    if (btn) btn.addEventListener('click', saveCard);
+  });
+})();
+</script>
+
+</body></html>

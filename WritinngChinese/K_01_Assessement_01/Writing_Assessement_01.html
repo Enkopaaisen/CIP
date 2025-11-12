@@ -336,52 +336,18 @@ canvas.trace { touch-action: none; cursor: crosshair; }
 #saveTraceBtn:hover{ background:#f3f6ff; border-color:#b8c2dd; }
 </style>
 
-<!-- Lines-off overrides -->
-<style id="lines-off">
-  /* remove borders/frames */
-  #maingrid, #topGrid, #bottomGrid, #menugrid, #chargrid, #tracegrid {
-    border: 0 !important;
-    box-shadow: none !important;
-    background: transparent !important;
-  }
-  #chargrid #charImage { border: 0 !important; }
-
-  /* hide inline-SVG trace grid lines */
-  #tracegrid .grid line,
-  #tracegrid .grid rect {
-    stroke: transparent !important;
-  }
-
-  /* small boxes clean */
-  #bottomGrid .smallCell { box-shadow: none !important; }
+<style id="force-white-borders">
+/* Border color overrides only (do not alter layout or other props) */
+#maingrid,
+#topGrid,
+#bottomGrid,
+#menugrid,
+#chargrid,
+#tracegrid {
+  border-color: #ffffff !important;
+}
 </style>
 
-<script id="canvas-grids-off">
-(function(){
-  function clearOnly(ctx,w,h){ try{ ctx.clearRect(0,0,w,h); }catch(e){} }
-  if (typeof window.drawGrid === 'function') {
-    window.drawGrid = function(ctx,w,h){ clearOnly(ctx,w,h); };
-  }
-  if (typeof window.redrawGrid === 'function') {
-    window.redrawGrid = function(cnv){
-      const ctx = cnv.getContext('2d'); clearOnly(ctx, cnv.width||cnv.clientWidth||0, cnv.height||cnv.clientHeight||0);
-    };
-  }
-  if (typeof window.drawMiZiGe === 'function') {
-    window.drawMiZiGe = function(ctx,w,h){ clearOnly(ctx,w,h); };
-  }
-  document.querySelectorAll('canvas').forEach(c=>{
-    const ctx = c.getContext && c.getContext('2d'); if (ctx) clearOnly(ctx, c.width||0, c.height||0);
-  });
-  const s = document.createElement('style');
-  s.textContent = `
-    canvas.trace, canvas.smallTrace, #charGridCanvas, #mainGridCanvas1, #mainGridCanvas2 {
-      background: #fff !important;
-    }
-  `;
-  document.head.appendChild(s);
-})();
-</script>
 </head>
 
 <body>
@@ -1775,8 +1741,8 @@ window.DECK = window.DECK = [
 
 
 <audio id="audioPlayer" preload="auto" style="display: none;"></audio>
-<script src="./hanzi_trace_module_prod_v1_1_2g.js"></script>
-<script src="./hanzi_trace_module_prod_v1_1_3g_shim.js"></script>
+<script src="./hanzi_trace_module_prod_v1_1_2e.js"></script>
+<script src="./hanzi_trace_module_prod_v1_1_3f_shim.js"></script>
 
 <script id="trace-mount-from-deck">
 (function(){

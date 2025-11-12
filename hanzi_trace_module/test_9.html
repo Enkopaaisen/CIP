@@ -2366,6 +2366,152 @@ window.DECK = [
   });
 })();
 </script>
-<script src="save_card_capture_v1.js"></script>
+<script>
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function $all(s,r){return Array.from((r||document).querySelectorAll(s))}
+
+  // Convert canvas/svg element (or a wrapper) to a canvas
+  function elementToCanvas(el, fallbackW, fallbackH){
+    if (!el) return null;
+    const tag = el.tagName ? el.tagName.toLowerCase() : '';
+    if (tag === 'canvas'){
+      const c = document.createElement('canvas');
+      c.width  = el.width  || fallbackW || 320;
+      c.height = el.height || fallbackH || 320;
+      c.getContext('2d').drawImage(el,0,0,c.width,c.height);
+      return c;
+    }
+    if (tag === 'svg'){
+      const vb = el.viewBox && el.viewBox.baseVal ? el.viewBox.baseVal : null;
+      const W = (vb && vb.width) || (el.width && el.width.baseVal && el.width.baseVal.value) || fallbackW || 320;
+      const H = (vb && vb.height)|| (el.height&& el.height.baseVal&& el.height.baseVal.value)|| fallbackH || 320;
+      const clone = el.cloneNode(true);
+      const NS="http://www.w3.org/2000/svg";
+      const bg = document.createElementNS(NS,'rect');
+      bg.setAttribute('x','0'); bg.setAttribute('y','0');
+      bg.setAttribute('width','100%'); bg.setAttribute('height','100%');
+      bg.setAttribute('fill','#ffffff');
+      clone.insertBefore(bg, clone.firstChild);
+      const style = document.createElementNS(NS,'style');
+      style.textContent = ".grid line,.grid rect{stroke:#cfcfcf;stroke-width:1.2;fill:none}.grid .border{stroke-width:1.5}.trace{fill:none;stroke:#000;stroke-linecap:round;stroke-linejoin:round}";
+      clone.insertBefore(style, clone.firstChild);
+      if (!clone.getAttribute('viewBox')) clone.setAttribute('viewBox', "0 0 "+W+" "+H);
+      const xml = new XMLSerializer().serializeToString(clone);
+      const url = URL.createObjectURL(new Blob([xml], {type:'image/svg+xml;charset=utf-8'}));
+      const c = document.createElement('canvas'); c.width=W; c.height=H;
+      const g = c.getContext('2d');
+      return new Promise(resolve=>{
+        const img = new Image();
+        img.onload = ()=>{ g.fillStyle='#fff'; g.fillRect(0,0,W,H); g.drawImage(img,0,0,W,H); URL.revokeObjectURL(url); resolve(c); };
+        img.src = url;
+      });
+    }
+    const inner = el.querySelector('canvas,svg');
+    return elementToCanvas(inner, fallbackW, fallbackH);
+  }
+
+  function findMainGrid(){ return $('#charGridCanvas') || $('#chargrid canvas') || $('#chargrid svg'); }
+  function findTraceEl(){ return $('#tracegrid')?.querySelector('canvas,svg'); }
+  function getSmallBoxes(){ return $all('.smallGridWrap canvas.smallTrace'); }
+
+  async function saveCard(){
+    const DPR = Math.max(1, Math.min(3, window.devicePixelRatio||1));
+
+    const mainEl = findMainGrid();
+    const traceEl = findTraceEl();
+    const boxes = getSmallBoxes();
+    const elPy = $('#charPinyin');
+    const elEn = $('#charEnglish');
+
+    if (!mainEl || !traceEl){ alert('Main grid or trace area not found.'); return; }
+
+    let mainCv = elementToCanvas(mainEl, 320, 320);
+    let traceCv = elementToCanvas(traceEl, 320, 320);
+    if (mainCv instanceof Promise) mainCv = await mainCv;
+    if (traceCv instanceof Promise) traceCv = await traceCv;
+
+    const mgW = mainCv.width, mgH = mainCv.height;
+    const trW = traceCv.width, trH = traceCv.height;
+
+    const pad=24*DPR, gap=16*DPR, rowGap=20*DPR;
+    const txtH=64*DPR;
+    const smallW=(boxes[0]?.width||120), smallH=(boxes[0]?.height||120);
+
+    const topW = mgW + gap + trW;
+    const bottomW = boxes.length ? (boxes.length*smallW + (boxes.length-1)*gap) : 0;
+
+    const W = Math.floor(pad*2 + Math.max(topW, bottomW));
+    const H = Math.floor(pad*2 + Math.max(mgH, trH) + txtH + rowGap + (boxes.length ? smallH : 0));
+
+    const cvs = document.createElement('canvas'); cvs.width=W; cvs.height=H;
+    const ctx = cvs.getContext('2d');
+    ctx.fillStyle='#fff'; ctx.fillRect(0,0,W,H);
+
+    // top row
+    const startX = Math.floor((W - topW)/2);
+    const topY = pad;
+    ctx.drawImage(mainCv, startX, topY);
+    ctx.drawImage(traceCv, startX + mgW + gap, topY);
+
+    // pinyin/english
+    const textY = topY + Math.max(mgH, trH) + Math.floor(gap*0.5);
+    const centerX = Math.floor(W/2);
+    ctx.fillStyle='#000'; ctx.textAlign='center'; ctx.textBaseline='top';
+    const pyText = elPy?.textContent || '';
+    ctx.font = (22*DPR)+'px WenKai, KaiTi, "Kaiti SC", STKaiti, serif';
+    ctx.fillText(pyText, centerX, textY);
+    const enText = elEn?.textContent || '';
+    ctx.font = (18*DPR)+'px system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial';
+    ctx.fillText(enText, centerX, textY + 28*DPR);
+
+    // small boxes
+    if (boxes.length){
+      const boxesY = textY + 28*DPR + 24*DPR + rowGap;
+      const rowW = boxes.length*smallW + (boxes.length-1)*gap;
+      let x = Math.floor((W - rowW)/2);
+      boxes.forEach(b=>{ ctx.drawImage(b, x, boxesY); x += smallW + gap; });
+    }
+
+    // timestamp
+    const now = new Date();
+    const ts = now.getFullYear().toString().padStart(4,'0')
+                +(now.getMonth()+1).toString().padStart(2,'0')
+                + now.getDate().toString().padStart(2,'0')
+                + '-' + now.getHours().toString().padStart(2,'0')
+                + now.getMinutes().toString().padStart(2,'0')
+                + now.getSeconds().toString().padStart(2,'0');
+    ctx.fillStyle='#222'; ctx.textAlign='right'; ctx.textBaseline='bottom';
+    ctx.font=(16*DPR)+'px system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial';
+    ctx.fillText(ts, W-10*DPR, H-8*DPR);
+
+    // filename
+    let stem='card';
+    try{ const cur=(window.DECK||[])[window._IDX|0]||{}; stem=(cur.pinyin||cur.hanzi||'card').toString().replace(/[^\w\-]+/g,'_').slice(0,60);}catch(_){}
+    const filename = stem + '_' + ts + '.png';
+
+    cvs.toBlob(blob=>{
+      if(!blob) return;
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank'); // open preview
+      const a = document.createElement('a'); a.href=url; a.download=filename;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url), 60000);
+    }, 'image/png');
+  }
+
+  // bind Save
+  function wire(){
+    const btn = document.getElementById('btnSave') || document.querySelector('button[aria-label="Save image"]');
+    if (btn) btn.addEventListener('click', e=>{ e.preventDefault(); saveCard(); });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wire);
+  else wire();
+
+  // expose
+  window.__saveCardComposite = saveCard;
+})();
+</script>
+
 
 </body></html>

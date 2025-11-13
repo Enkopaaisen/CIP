@@ -347,6 +347,13 @@ canvas.trace { touch-action: none; cursor: crosshair; }
   border-color: #ffffff !important;
 }
 </style>
+<style>
+  /* Hide the Save-to-small-box button, but keep it in DOM so shim still works */
+  #tracegrid button[aria-label="Save image"],
+  #tracegrid button[title="Save image"] {
+    display: none;
+  }
+</style>
 
 </head>
 
@@ -2128,6 +2135,40 @@ window.DECK = window.DECK = [
   // });
 </script>
 <script src="hanzi_snap_cache_v1.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // 1) Find the "Clear all" button and rename it to "Refresh"
+  const clearBtn = document.querySelector(
+    '#tracegrid button[aria-label="Clear all"], ' +
+    '#tracegrid button[title="Clear all"]'
+  );
+
+  if (clearBtn) {
+    // Change tooltip + accessibility label
+    clearBtn.setAttribute('aria-label', 'Refresh');
+    clearBtn.setAttribute('title', 'Refresh');
+
+    // 2) Change icon to a round "cycle" / refresh arrow
+    const iconPath = clearBtn.querySelector('svg path');
+    if (iconPath) {
+      // Simple circular refresh arrow icon
+      iconPath.setAttribute(
+        'd',
+        'M12 4a8 8 0 1 0 8 8h-2.5a5.5 5.5 0 1 1-1.6-3.9L13 11h7V4l-2.3 2.3A8 8 0 0 0 12 4z'
+      );
+    }
+  }
+
+  // 3) Make sure the Save-to-small-box button is hidden (visual only)
+  const saveBtn = document.querySelector(
+    '#tracegrid button[aria-label="Save image"], ' +
+    '#tracegrid button[title="Save image"]'
+  );
+  if (saveBtn) {
+    saveBtn.style.display = 'none';
+  }
+});
+</script>
 
 
 </body></html>

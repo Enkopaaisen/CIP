@@ -55,45 +55,98 @@
     wrap.appendChild(svgBox);
     svgBox.appendChild(svg);
 
-    // Cartoon-style light strip (multi-color bubbles that light up on full completion)
-    const lightStrip = document.createElement("div");
-    lightStrip.style.position = "absolute";
-    lightStrip.style.left = "50%";
-    lightStrip.style.bottom = "4px";
-    lightStrip.style.transform = "translateX(-50%)";
-    lightStrip.style.display = "flex";
-    lightStrip.style.gap = "6px";
-    lightStrip.style.justifyContent = "center";
-    svgBox.appendChild(lightStrip);
-
+    // Cartoon-style light bubbles all around the miZiGe grid
     const LIGHT_COLORS = ["#ff5252","#ffb300","#ffee58","#69f0ae","#40c4ff","#b388ff"];
-    const lightBubbles = LIGHT_COLORS.map(c => {
-      const b = document.createElement("div");
-      b.style.width = "14px";
-      b.style.height = "14px";
-      b.style.borderRadius = "50%";
-      b.style.border = "2px solid #999";
-      b.style.background = "#eeeeee";
-      b.style.boxShadow = "0 0 0 rgba(0,0,0,0)";
-      b.style.opacity = "0.4";
-      b.dataset.color = c;
-      lightStrip.appendChild(b);
-      return b;
-    });
+    const lightBubbles = [];
+    let glowTimer = null;
+
+    function makeLightStrip(pos){
+      const strip = document.createElement("div");
+      strip.style.position = "absolute";
+      strip.style.display = "flex";
+      strip.style.gap = "6px";
+      strip.style.justifyContent = "center";
+      strip.style.alignItems = "center";
+
+      let count;
+      if(pos === "top" || pos === "bottom"){
+        strip.style.left = "50%";
+        strip.style.transform = "translateX(-50%)";
+        strip.style[pos] = "4px";
+        strip.style.flexDirection = "row";
+        count = 6;
+      } else {
+        strip.style.top = "50%";
+        strip.style.transform = "translateY(-50%)";
+        strip.style[pos] = "4px";
+        strip.style.flexDirection = "column";
+        count = 4;
+      }
+
+      for(let i=0;i<count;i++){
+        const color = LIGHT_COLORS[i % LIGHT_COLORS.length];
+        const b = document.createElement("div");
+        b.style.width = "14px";
+        b.style.height = "14px";
+        b.style.borderRadius = "50%";
+        b.style.border = "2px solid rgba(0,0,0,0.25)";
+        // cartoon light bubble look via gradient + inner highlight
+        b.style.backgroundImage = "radial-gradient(circle at 30% 30%, #ffffff, " + color + ")";
+        b.style.boxShadow = "0 0 0 rgba(0,0,0,0)";
+        b.style.opacity = "0.35";
+        b.style.transition = "transform 0.18s ease-out, box-shadow 0.18s ease-out, opacity 0.18s ease-out";
+        b.dataset.color = color;
+        strip.appendChild(b);
+        lightBubbles.push(b);
+      }
+      svgBox.appendChild(strip);
+    }
+
+    // create strips on all four sides
+    makeLightStrip("top");
+    makeLightStrip("bottom");
+    makeLightStrip("left");
+    makeLightStrip("right");
+
+    function stopGlow(){
+      if(glowTimer){
+        clearInterval(glowTimer);
+        glowTimer = null;
+      }
+    }
+
+    function startGlow(){
+      if(glowTimer || lightBubbles.length===0) return;
+      glowTimer = setInterval(()=>{
+        const idx = Math.floor(Math.random() * lightBubbles.length);
+        const el = lightBubbles[idx];
+        const c = el.dataset.color || "#ffeb3b";
+        // small pulse glow
+        el.style.transform = "scale(1.25)";
+        el.style.boxShadow = "0 0 14px " + c;
+        setTimeout(()=>{
+          el.style.transform = "scale(1.0)";
+          el.style.boxShadow = "0 0 10px " + c;
+        }, 200);
+      }, 260);
+    }
 
     function setLights(on){
-      lightBubbles.forEach(el => {
-        if(on){
+      if(on){
+        lightBubbles.forEach(el => {
           const c = el.dataset.color || "#ffeb3b";
-          el.style.background = c;
-          el.style.boxShadow = "0 0 8px " + c;
           el.style.opacity = "1";
-        } else {
-          el.style.background = "#eeeeee";
-          el.style.boxShadow = "none";
-          el.style.opacity = "0.4";
-        }
-      });
+          el.style.boxShadow = "0 0 10px " + c;
+        });
+        startGlow();
+      } else {
+        stopGlow();
+        lightBubbles.forEach(el => {
+          el.style.opacity = "0.35";
+          el.style.boxShadow = "0 0 0 rgba(0,0,0,0)";
+          el.style.transform = "scale(1.0)";
+        });
+      }
     }
     // lights start off on initial load
     setLights(false);
